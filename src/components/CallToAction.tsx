@@ -1,42 +1,95 @@
-"use client"
-import HelixImage from '../assets/images/helix2.png'
-import EmojiImage from '../assets/images/emojistar.png'
-import Image from 'next/image';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { use, useRef } from 'react';
+// app/components/LeadForm.tsx
+"use client";
 
-export const CallToAction = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
+import { useState } from "react";
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end end"]
-  })
+export const LeadForm = () => {
+  const [form, setForm] = useState({
+    nama: "",
+    whatsapp: "",
+    keterangan: "",
+  });
 
-  const translateY = useTransform(scrollYProgress, [0, 1], [50, -50]);
-  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Contoh logika kirim data, bisa disesuaikan ke backend/API/WA
+    alert(`Data dikirim:\nNama: ${form.nama}\nWA: ${form.whatsapp}\nKeterangan: ${form.keterangan}`);
+    
+    // Reset form (opsional)
+    setForm({ nama: "", whatsapp: "", keterangan: "" });
+  };
+
   return (
-    <div className="bg-black text-white py-[72px] sm:py-24" ref={containerRef}>
-      
-      <div className="container max-w-xl relative">
-      <motion.div style={{translateY}}>
-      <Image src={HelixImage} alt="helix" className="absolute top-6 left-[calc(100%+36px)]" />
-      </motion.div>
-      <motion.div style={{translateY}}>
-       
-      <Image src={EmojiImage} alt="emoji" className="absolute -top-[120px] right-[calc(100%+30px)]" />
-      </motion.div>
-       
+    <section className="bg-gradient-to-b from-white to-yellow-300 text-black py-[72px] sm:py-24">
+      <div className="container px-4 max-w-xl mx-auto">
+        <h2 className="text-4xl sm:text-5xl text-center font-bold tracking-tight mb-12">
+          Tertarik Investasi? Hubungi Kami!
+        </h2>
 
-        <h2 className="font-bold text-5xl sm:text-6xl tracking-tighter">Get Instant Access</h2>
-        <p className="text-xl text-white/70  mt-5">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Explicabo, veritatis? Omnis minima quisquam error accusamus?</p>
-        <form className="mt-10 flex flex-col gap-2.5 max-w-sm mx-auto sm:flex-row">
-          <input type="email" placeholder="karthikmudunuri999@gmail.com" className="h-12 bg-white/20 rounded-lg px-5 font-medium placeholder:text-[#9CA3AF] sm:flex-1"/>
-          <button className="bg-white text-black h-12 rounded-lg px-5">Get access</button>
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-6 rounded-xl shadow-lg space-y-6"
+        >
+          <div>
+            <label htmlFor="nama" className="block font-semibold mb-1">
+              Nama Lengkap
+            </label>
+            <input
+              type="text"
+              name="nama"
+              id="nama"
+              value={form.nama}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              placeholder="Contoh: Andi Saputra"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="whatsapp" className="block font-semibold mb-1">
+              No WhatsApp
+            </label>
+            <input
+              type="tel"
+              name="whatsapp"
+              id="whatsapp"
+              value={form.whatsapp}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              placeholder="Contoh: 081234567890"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="keterangan" className="block font-semibold mb-1">
+              Keterangan Tambahan
+            </label>
+            <textarea
+              name="keterangan"
+              id="keterangan"
+              value={form.keterangan}
+              onChange={handleChange}
+              rows={4}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              placeholder="Contoh: Saya tertarik untuk mendapatkan simulasi ROI."
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 rounded-lg transition"
+          >
+            Kirim Sekarang
+          </button>
         </form>
       </div>
-
-
-    </div>
-  )
+    </section>
+  );
 };

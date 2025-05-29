@@ -1,48 +1,51 @@
-"use client"
-import CursorImage from '../assets/images/cursor.png'
-import ArrowIcon from '../assets/icons/arrow-w.svg'
-import MessageImage from '../assets/images/message.png'
+'use client';
+
 import Image from 'next/image';
-import {motion} from 'framer-motion'
-import { AnimatedGradientTextDemo } from './animatedtext';
+import { motion } from 'framer-motion';
+import VillaImage from '../assets/images/hook.png';
 
 export const Hero = () => {
   return (
-    <div className="bg-black text-white bg-[linear-gradient(to_bottom,#000,#200D42_34%,#4F21A1_65%,#A46EDB_82%)] py-[72px] sm:py-24 relative overflow-clip">
-      <div className="absolute h-[375px] w-[750px] sm:w-[1536px] sm:h-[768px] lg:w-[2400px] llg:h-[800px] rounded-[100%] bg-black left-1/2 -translate-x-1/2 border border-[#B48CDE] bg-[radial-gradient(closest-side,#000_82%,#9560EB)] top-[calc(100%-96px)] sm:top-[calc(100%-120px)]"></div>
-    <div className="container relative">
-      <div className="flex items-center justify-center -mt-10">
-        <AnimatedGradientTextDemo/>
-      </div>
-      <div className="flex justify-center mt-8 ">
-      <div className="inline-flex relative">
-      <h1 className='text-7xl sm:text-9xl font-bold tracking-tightner text-center inline-flex'>Eldora UI <br/> is more</h1>
-      <motion.div className='absolute right-[478px] top-[108px] hidden sm:inline'
-      drag
-      dragSnapToOrigin
-
-      >
-      <Image src={CursorImage} alt="cursor" height={200} width={200} className='max-w-none' draggable="false"/>
-      </motion.div>
-      <motion.div className='absolute left-[498px] top-[56px] hidden sm:inline'
-      drag
-      dragSnapToOrigin
-      >
-      <Image src={MessageImage} alt="cursor"  height={200} width={200} className='max-w-none' draggable="false"/>
-      </motion.div>
-      </div>
-      </div>
-      <div className="flex justify-center">
-      <p className='text-xl text-center mt-8 max-w-md'>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit quod dicta, nisi autem dignissimos consequatur? Unde saepe eius nam. Minima at quaerat non quae qui consequatur hic nam neque earum.</p>
-      </div>
-      <div className="flex justify-center mt-8">
-      <button className='bg-white text-black py-3 px-5 rounded-lg font-medium'>Get for free</button>
+    <section className="relative bg-white text-[#2E2E2E] overflow-hidden min-h-screen flex items-center justify-center">
+      <div className="absolute inset-0 z-0 w-full h-full overflow-hidden pointer-events-none">
+        <Image
+          src={VillaImage}
+          alt="Villa Lodji Svarga 2"
+          fill
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          priority
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-40" />
       </div>
 
+      <div className="relative z-10 container mx-auto px-4 py-16 sm:py-24 max-w-4xl text-center -mt-12">
+        <motion.h1
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-4xl sm:text-6xl font-bold leading-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+        >
+          Miliki Villa Eksklusif di Pusat <span className="text-yellow-400">Kota Yogyakarta</span>
+        </motion.h1>
 
-    </div>
-    
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="mt-6 text-lg sm:text-xl text-white/90 font-light drop-shadow-sm"
+        >
+          Dengan harga <span className="font-semibold text-yellow-400">375 JUTA</span> anda sudah mendapatkan Passive Income hingga <span className="font-semibold text-yellow-400">Rp6 Juta/Bulan</span>, Balik Modal Dalam <span className="font-semibold text-yellow-400">5 Tahun</span>, dan <span className="font-semibold text-yellow-400">Fasilitas Lengkap & Full Furnish</span>.
+        </motion.p>
 
-    </div>
-  )
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="mt-6 text-lg sm:text-xl max-w-3xl mx-auto text-white/80"
+        >
+          Lokasi super strategis belakang UPN & dekat Ambarukmo Plaza. Dikelola profesional, cocok untuk passive income, warisan keluarga, atau bisnis jangka panjang.
+        </motion.p>
+      </div>
+    </section>
+  );
 };

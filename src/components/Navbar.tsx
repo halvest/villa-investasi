@@ -1,41 +1,71 @@
+"use client";
 
-import LogoImage from '../assets/icons/logo.svg';
-import MenuIcon from '../assets/icons/menu.svg';
-
+import { useState } from "react";
+import LogoImage from "../assets/icons/logo.svg";
+import MenuIcon from "../assets/icons/menu.svg";
 
 export const Navbar = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <div className="bg-black">
-      <div className="px-4">
-    <div className="container bg-black">
-      <div className="py-4 flex items-center justify-between">
+    <header className="bg-white shadow-md sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
 
-      <div className="relative">
-        <div className='absolute w-full top-2 bottom-0 bg-[linear-gradient(to_right,#F7AABE,#B57CEC,#E472D1)] blur-md '></div>
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <LogoImage className="h-10 w-10" />
+          <span className="text-xl font-bold text-gray-900">Lodji Svarga 2</span>
+        </div>
 
-      <LogoImage className="h-12 w-12 relative mt-1"/>
+        {/* Desktop Menu */}
+        <nav
+          className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700"
+          role="navigation"
+          aria-label="Main menu"
+        >
+          <a href="#promo" className="hover:text-pink-600 transition-colors">Promo</a>
+          <a href="#keunggulan" className="hover:text-pink-600 transition-colors">Benefit</a>
+          <a href="#unit" className="hover:text-pink-600 transition-colors">Fasilitas Unit</a>
+          <a href="#lokasi" className="hover:text-pink-600 transition-colors">Lokasi</a>
+          <a href="#faq" className="hover:text-pink-600 transition-colors">FAQ</a>
+          <a
+            href="#booking"
+            className="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded-lg transition-colors shadow-sm"
+          >
+            Booking Sekarang
+          </a>
+        </nav>
+
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden border border-gray-300 p-2 rounded-lg hover:bg-gray-100 transition"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle mobile menu"
+        >
+          <MenuIcon className="h-6 w-6 text-gray-700" />
+        </button>
       </div>
-      <div className='border border-white border-opacity-30 h-10 w-10 inline-flex justify-center items-center rounded-lg sm:hidden'>
 
-      <MenuIcon className="text-white" />
+      {/* Mobile Menu Dropdown */}
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          menuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <nav className="flex flex-col gap-4 px-4 pb-6 pt-2 text-sm font-medium text-gray-700">
+          <a href="#promo" className="hover:text-pink-600 transition-colors">Promo</a>
+          <a href="#keunggulan" className="hover:text-pink-600 transition-colors">Benefit</a>
+          <a href="#unit" className="hover:text-pink-600 transition-colors">Fasilitas Unit</a>
+          <a href="#lokasi" className="hover:text-pink-600 transition-colors">Lokasi</a>
+          <a href="#faq" className="hover:text-pink-600 transition-colors">FAQ</a>
+          <a
+            href="#booking"
+            className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg text-center transition-colors"
+          >
+            Booking Sekarang
+          </a>
+        </nav>
       </div>
-      <nav className='text-white gap-6 items-center hidden sm:flex'>
-        
-        <a href="#" className='text-opacity-60 text-white hover:text-opacity-100 transition' >About</a>
-        <a href="#" className='text-opacity-60 text-white hover:text-opacity-100 transition'>Features</a>
-        <a href="#" className='text-opacity-60 text-white hover:text-opacity-100 transition'>Updates</a>
-        <a href="#" className='text-opacity-60 text-white hover:text-opacity-100 transition'>Help</a>
-        <a href="#" className='text-opacity-60 text-white hover:text-opacity-100 transition'>Customers</a>
-        <button className='bg-white py-2 px-4 rounded-lg text-black'>Get for free</button>
-      </nav>
-
-      </div>
-
-
-
-
-    </div>
-    </div>
-    </div>
-  )
+    </header>
+  );
 };

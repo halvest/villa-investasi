@@ -1,0 +1,226 @@
+1.src/components/lib/useParallax.ts
+'use client';
+
+import { useScroll, useTransform, motionValue } from 'framer-motion';
+
+export function useParallax(offsetFactor = 0.5) {
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, (value) => value * offsetFactor);
+  return y;
+}
+
+
+2.src/components/Hero.tsx
+'use client';
+
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import VillaImage from '../assets/images/hook.png';
+import { useParallax } from '../components/lib/useParallax';
+
+export const Hero = () => {
+  const y = useParallax(0.4);
+
+  return (
+    <section className="relative bg-white text-[#2E2E2E] overflow-hidden min-h-screen flex items-center justify-center">
+      {/* Parallax Background */}
+      <motion.div
+        className="absolute inset-0 z-0 w-full h-full overflow-hidden pointer-events-none"
+        style={{ y }}
+      >
+        <Image
+          src={VillaImage}
+          alt="Villa Lodji Svarga 2"
+          fill
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          priority
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-40" />
+      </motion.div>
+
+      {/* Konten */}
+      <div className="relative z-10 container mx-auto px-4 py-16 sm:py-24 max-w-4xl text-center -mt-12">
+        <motion.h1
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-4xl sm:text-6xl font-bold leading-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+        >
+          Miliki Villa Eksklusif di Pusat <span className="text-yellow-400">Kota Yogyakarta</span>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="mt-6 text-lg sm:text-xl text-white/90 font-light drop-shadow-sm"
+        >
+          Dengan harga <span className="font-semibold text-yellow-400">375 JUTA</span> anda sudah mendapatkan Passive Income hingga <span className="font-semibold text-yellow-400">Rp6 Juta/Bulan</span>, Balik Modal Dalam <span className="font-semibold text-yellow-400">5 Tahun</span>, dan <span className="font-semibold text-yellow-400">Fasilitas Lengkap & Full Furnish</span>.
+        </motion.p>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="mt-6 text-lg sm:text-xl max-w-3xl mx-auto text-white/80"
+        >
+          Lokasi super strategis belakang UPN & dekat Ambarukmo Plaza. Dikelola profesional, cocok untuk passive income, warisan keluarga, atau bisnis jangka panjang.
+        </motion.p>
+      </div>
+    </section>
+  );
+};
+
+3.src/components/PromoLaunchingSection.tsx
+'use client';
+
+import Image from 'next/image';
+import villaImage from "../assets/images/9.jpg";
+import { motion } from 'framer-motion';
+import { useParallax } from '../components/lib/useParallax';
+
+export const PromoLaunchingSection = () => {
+  const y = useParallax(0.3); // Lebih pelan dari Hero
+
+  return (
+    <section className="relative bg-black text-white overflow-hidden">
+      {/* Parallax Background */}
+      <motion.div
+        className="absolute inset-0 z-0 w-full h-full overflow-hidden pointer-events-none"
+        style={{ y }}
+      >
+        <Image
+          src={villaImage}
+          alt="Promo Launching Villa"
+          fill
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          priority
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-50" />
+      </motion.div>
+
+      {/* Konten */}
+      <div className="relative z-10 container mx-auto px-4 py-24 text-center max-w-3xl">
+        <motion.h2
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-4xl sm:text-5xl font-bold leading-tight mb-6"
+        >
+          Grand Launching Villa <span className="text-yellow-400">Lodji Svarga 2</span>
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="text-lg sm:text-xl text-white/90 mb-8"
+        >
+          Dapatkan harga promo <span className="text-yellow-400 font-semibold">Rp375 JUTA</span> saja! Kesempatan emas untuk memiliki villa eksklusif dengan <span className="font-semibold">passive income hingga Rp6 Juta/bulan</span>.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+        >
+          <a
+            href="https://wa.me/6283144940611"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-yellow-400 text-[#2E2E2E] font-semibold px-8 py-4 rounded-full shadow-xl hover:bg-yellow-300 transition duration-300"
+          >
+            Klaim Promo Sekarang
+          </a>
+        </motion.div>
+
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="mt-6 text-sm text-white/70"
+        >
+          Promo terbatas hanya untuk <span className="font-medium">10 pembeli pertama</span>. Berlaku hingga akhir bulan ini.
+        </motion.p>
+      </div>
+    </section>
+  );
+};
+
+4.src/components/Benefit.tsx
+'use client';
+
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import VillaImage from '../assets/images/hook.png';
+
+export function VillaBenefitsPage() {
+  const benefits = [
+    {
+      title: 'Full Furnished & Siap Huni',
+      desc: 'Dilengkapi perabotan modern berkualitas – tinggal bawa koper, langsung bisa disewakan atau dihuni.',
+    },
+    {
+      title: 'Harga Terjangkau di Kawasan Premium',
+      desc: 'Hanya Rp375 juta untuk villa eksklusif di Seturan – Sleman, dekat kampus dan pusat hiburan.',
+    },
+    {
+      title: 'Passive Income Hingga Rp6 Juta/Bulan',
+      desc: 'Dapatkan penghasilan rutin dari penyewaan harian atau bulanan, dikelola oleh tim profesional.',
+    },
+    {
+      title: 'ROI Cepat – Balik Modal Dalam 5 Tahun',
+      desc: 'Dengan pemasukan hingga Rp75 juta per tahun, balik modal lebih cepat dengan risiko rendah.',
+    },
+    {
+      title: 'Free Stay 12x per Tahun',
+      desc: 'Nikmati villa Anda sendiri untuk liburan keluarga hingga 12 kali setiap tahun, selama 20 tahun!',
+    },
+    {
+      title: 'Dikelola Tim Profesional',
+      desc: 'Tidak perlu repot urus tamu, kebersihan, atau promosi – semua sudah ditangani.',
+    },
+  ];
+
+  return (
+    <main className="bg-white text-gray-900">
+      <section className="relative h-[60vh] w-full">
+        <Image
+          src={VillaImage}
+          alt="Interior Villa"
+          fill
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
+          className="brightness-75"
+        />
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white text-center px-4">
+            Detail Keuntungan Memiliki Villa Lodji Svarga 2
+          </h1>
+        </div>
+      </section>
+
+      <section className="py-20 px-6 sm:px-10 max-w-5xl mx-auto">
+        <h2 className="text-2xl sm:text-3xl font-semibold text-center mb-12">
+          Mengapa Investasi Ini Layak Dimiliki?
+        </h2>
+
+        <div className="grid sm:grid-cols-2 gap-10">
+          {benefits.map((item, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1, duration: 0.5 }}
+              className="p-6 rounded-2xl shadow-lg bg-white border border-gray-200"
+            >
+              <h3 className="text-xl font-semibold mb-2 text-yellow-500">
+                {item.title}
+              </h3>
+              <p className="text-gray-700 text-base leading-relaxed">{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}

@@ -1,31 +1,30 @@
 import { Banner } from "@/components/Banner";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
-import { LogoTicker } from "@/components/LogoTicker";
-import { Features } from "@/components/Features";
-import { ProductShowcase } from "@/components/ProductShowcase";
+import { FasilitasSection } from "@/components/LogoTicker";
+import { LocationDetail } from "@/components/Features";
 import { FAQs } from "@/components/FAQs";
-import { CallToAction } from "@/components/CallToAction";
+import { LeadForm } from "@/components/CallToAction";
 import { Footer } from "@/components/Footer";
-import { Pricing } from "@/components/Pricingdemo";
+import { PromoLaunchingSection } from "@/components/PromoLaunchingSection";
+import { VillaBenefitsPage } from "@/components/Benefit";
 
 
 export default function Home() {
   return (
     <>
     <div className="overflow-x-hidden">
-      <Banner />
       <Navbar />
       <Hero />
-      <LogoTicker />
+      <PromoLaunchingSection />
+      <VillaBenefitsPage />
+      <FasilitasSection />
       
-      <Features />
+      <LocationDetail />
       
-      <ProductShowcase />
       <FAQs />
-      <Pricing/>
      
-      <CallToAction />
+      <LeadForm />
       </div>
       <Footer />
     </>

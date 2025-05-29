@@ -1,3 +1,62 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+
+html,
+body {
+  @apply scroll-smooth antialiased;
+  background-color: #fff;
+  color: #2E2E2E;
+  font-family: 'Inter', sans-serif;
+}
+
+
+
+.parallax-layer {
+  will-change: transform;
+  transition: transform 0.1s ease-out;
+}
+
+
+.animate-gradient-bg {
+  background-size: 200% 200%;
+  animation: gradient 8s linear infinite;
+}
+
+
+.text-gradient {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(to right, #facc15, #fbbf24);
+}
+
+
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+
+.container {
+  @apply mx-auto px-4;
+}
+
+
+@keyframes infinite-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: var(--bg-size, 200%) 0;
+  }
+}
+*/
