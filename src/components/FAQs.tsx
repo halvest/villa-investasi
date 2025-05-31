@@ -87,7 +87,7 @@ export function FAQs() {
             Masih punya pertanyaan atau butuh simulasi ROI?
           </p>
           <a
-            href="https://wa.me/6281234567890?text=Halo%20saya%20ingin%20tanya-tanya%20tentang%20Villa%20Lodji%20Svarga%202"
+            href="https://wa.me/6283144940611?text=Halo%20saya%20ingin%20tanya-tanya%20tentang%20Villa%20Lodji%20Svarga%202"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-full font-semibold transition-shadow shadow-md hover:shadow-lg"
