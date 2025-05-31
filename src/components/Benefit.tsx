@@ -1,75 +1,98 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
-import VillaImage from '../assets/images/9.jpg';
+import { CheckCircle } from 'lucide-react';
 
 export function VillaBenefitsPage() {
   const benefits = [
     {
-      title: 'Full Furnished & Siap Huni',
-      desc: 'Dilengkapi perabotan modern berkualitas – tinggal bawa koper, langsung bisa disewakan atau dihuni.',
+      title: 'Full Furnished',
+      desc: 'Interior modern & lengkap. Tidak perlu renovasi atau tambahan biaya. Bisa langsung menghasilkan.',
     },
     {
-      title: 'Harga Terjangkau di Kawasan Premium',
-      desc: 'Hanya Rp375 juta untuk villa eksklusif di Seturan – Sleman, dekat kampus dan pusat hiburan.',
+      title: 'Lokasi Premium',
+      desc: 'Hanya Rp375 juta untuk villa eksklusif di Seturan, Sleman – dekat kampus, pusat kuliner, dan wisata.',
     },
     {
-      title: 'Passive Income Hingga Rp6 Juta/Bulan',
-      desc: 'Dapatkan penghasilan rutin dari penyewaan harian atau bulanan, dikelola oleh tim profesional.',
+      title: 'Passive Income',
+      desc: 'Potensi penghasilan hingga Rp6 juta per bulan dari penyewaan, dikelola secara profesional.',
     },
     {
-      title: 'ROI Cepat – Balik Modal Dalam 5 Tahun',
-      desc: 'Dengan pemasukan hingga Rp75 juta per tahun, balik modal lebih cepat dengan risiko rendah.',
+      title: 'Balik Modal Cepat',
+      desc: 'ROI optimal – proyeksi pengembalian dalam 5 tahun dengan estimasi pendapatan Rp75 juta/tahun.',
     },
     {
-      title: 'Free Stay 12x per Tahun',
-      desc: 'Nikmati villa Anda sendiri untuk liburan keluarga hingga 12 kali setiap tahun, selama 20 tahun!',
+      title: '12x Free Stay per Tahun',
+      desc: 'Nikmati villa Anda pribadi 12 kali setiap tahun – cocok untuk liburan keluarga selama 20 tahun ke depan.',
     },
     {
-      title: 'Dikelola Tim Profesional',
-      desc: 'Tidak perlu repot urus tamu, kebersihan, atau promosi – semua sudah ditangani.',
+      title: 'Manajemen Profesional',
+      desc: 'Tidak perlu repot. Tim kami menangani reservasi, kebersihan, hingga pemasaran secara menyeluruh.',
     },
   ];
 
   return (
-    <main className="bg-white text-gray-900">
-      <section className="relative h-[60vh] w-full">
-        <Image
-          src={VillaImage}
-          alt="Interior Villa"
-          fill
-          style={{ objectFit: 'cover', objectPosition: 'center' }}
-          className="brightness-75"
-        />
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-white text-center px-4">
-            Detail Keuntungan Memiliki Villa Lodji Svarga 2
-          </h1>
-        </div>
-      </section>
+    <main className="bg-[#E8ECE4] text-[#2E2E2E]">
+      {/* Transition */}
+      <div className="h-12 bg-gradient-to-b from-transparent to-[#E8ECE4]" />
 
-      <section className="py-20 px-6 sm:px-10 max-w-5xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl font-semibold text-center mb-12">
-          Mengapa Investasi Ini Layak Dimiliki?
+      {/* Benefit Section */}
+      <section id="benefit" className="py-24 px-4 sm:px-8 max-w-7xl mx-auto">
+        <h2 className="text-4xl sm:text-5xl font-bold text-center text-[#445B47] mb-12 leading-tight">
+          Benefit Investasi di Villa Lodjisvarga 2?
         </h2>
 
-        <div className="grid sm:grid-cols-2 gap-10">
-          {benefits.map((item, idx) => (
+        <div className="grid gap-8 sm:gap-10 md:grid-cols-2 lg:grid-cols-3">
+          {benefits.map((item, index) => (
             <motion.div
-              key={idx}
+              key={index}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1, duration: 0.5 }}
-              className="p-6 rounded-2xl shadow-lg bg-white border border-gray-200"
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="bg-white border border-[#D5DACF] rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-lg transition duration-300"
             >
-              <h3 className="text-xl font-semibold mb-2 text-yellow-500">
-                {item.title}
-              </h3>
-              <p className="text-gray-700 text-base leading-relaxed">{item.desc}</p>
+              <div className="flex items-start gap-3 mb-4">
+                <CheckCircle className="text-[#7A9E7E] w-6 h-6 mt-1" />
+                <h3 className="text-xl font-semibold text-[#2E3E2D]">
+                  {item.title}
+                </h3>
+              </div>
+              <p className="text-base text-[#444] leading-relaxed">
+                {item.desc}
+              </p>
             </motion.div>
           ))}
         </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-[#445B47] py-20 px-6 text-white text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold mb-6 leading-snug">
+          Siap Miliki <span className="text-yellow-300">Villa Investasi</span> Anda?
+        </h2>
+        <p className="text-lg sm:text-xl max-w-2xl mx-auto mb-8 text-white/90">
+          Hubungi kami sekarang untuk informasi lengkap dan jadwal survei lokasi.
+          <br className="hidden sm:block" />
+          Kesempatan terbatas — jangan sampai terlewat!
+        </p>
+
+        <a
+          href="https://wa.me/6283144940611"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-white text-[#445B47] font-medium px-6 sm:px-8 py-3 sm:py-4 rounded-full shadow-md hover:bg-[#f0f4ef] transition duration-300 text-base sm:text-lg"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            className="w-5 h-5"
+            viewBox="0 0 24 24"
+          >
+            <path d="M20.52 3.48A11.958 11.958 0 0012 0C5.373 0 0 5.373 0 12a11.94 11.94 0 001.608 6.01L0 24l6.144-1.608A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12a11.958 11.958 0 00-3.48-8.52zm-8.52 18c-1.615 0-3.169-.39-4.56-1.128l-.325-.174-3.648.96.974-3.556-.212-.366A9.97 9.97 0 012 12C2 6.486 6.486 2 12 2c2.668 0 5.157 1.038 7.038 2.922A9.935 9.935 0 0122 12c0 5.514-4.486 10-10 10zm5.38-7.57c-.295-.148-1.742-.859-2.012-.956-.271-.098-.47-.148-.669.148-.197.295-.768.956-.941 1.154-.174.197-.346.222-.64.074-.295-.148-1.246-.459-2.373-1.462-.878-.782-1.47-1.748-1.641-2.043-.174-.296-.018-.456.13-.603.134-.132.297-.347.446-.521.149-.174.198-.297.297-.495.099-.198.05-.371-.025-.52-.075-.148-.669-1.611-.916-2.204-.242-.582-.487-.502-.669-.512-.174-.009-.372-.011-.57-.011-.198 0-.52.074-.793.371-.272.297-1.042 1.016-1.042 2.48s1.066 2.873 1.215 3.069c.148.198 2.099 3.204 5.088 4.491.71.306 1.263.489 1.694.626.712.226 1.361.194 1.872.118.571-.085 1.742-.712 1.99-1.4.248-.69.248-1.282.174-1.4-.074-.119-.271-.198-.566-.346z" />
+          </svg>
+          Konsultasi via WhatsApp
+        </a>
       </section>
     </main>
   );

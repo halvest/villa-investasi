@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import clsx from "clsx";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 // Load Google Font
 const dmSans = DM_Sans({ subsets: ["latin"] });
@@ -61,7 +62,10 @@ export default function RootLayout({
       <head>
         <meta name="google-site-verification" content="ISI_KODE_VERIFIKASI_GOOGLE" />
       </head>
-      <body className={clsx(dmSans.className, "antialiased")}>{children}</body>
+      <body className={clsx(dmSans.className, "antialiased")}>
+        {children}
+        <Toaster position="top-center" reverseOrder={false} />
+      </body>
     </html>
   );
 }

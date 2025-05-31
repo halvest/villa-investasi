@@ -2,46 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
-
+/* Base styles for html and body */
 html,
 body {
-  @apply scroll-smooth antialiased;
-  background-color: #fff;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  background-color: #E8ECE4;
   color: #2E2E2E;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+/* Ensure sticky elements behave properly */
+.sticky {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 
-
+/* Utility class for parallax effect */
 .parallax-layer {
   will-change: transform;
   transition: transform 0.1s ease-out;
 }
 
-
+/* Animated gradient background */
 .animate-gradient-bg {
   background-size: 200% 200%;
   animation: gradient 8s linear infinite;
 }
 
-
+/* Gradient text style */
 .text-gradient {
-  @apply bg-clip-text text-transparent;
   background-image: linear-gradient(to right, #facc15, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
-
+/* Text shadow for emphasis */
 .text-shadow {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-
+/* Standard responsive container */
 .container {
-  @apply mx-auto px-4;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
+/* Section padding helper */
+.section {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
 
+/* Infinite scroll keyframe animation */
 @keyframes infinite-scroll {
   from {
     transform: translateX(0);
@@ -51,12 +72,12 @@ body {
   }
 }
 
+/* Gradient animation for backgrounds */
 @keyframes gradient {
   0% {
     background-position: 0 0;
   }
   100% {
-    background-position: var(--bg-size, 200%) 0;
+    background-position: 200% 0;
   }
 }
-*/
