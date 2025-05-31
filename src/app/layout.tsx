@@ -60,7 +60,8 @@ export default function RootLayout({
   return (
     <html lang="id">
       <head>
-        <meta name="google-site-verification" content="ISI_KODE_VERIFIKASI_GOOGLE" />
+        <meta name="google-site-verification" content="F7BmAIc2TrhpbXx5VJqFRf2rSQvKNekU0AsSxxjG4oA" />
+        <link rel="icon" href="/favicon.ico" />
       </head>
       <body className={clsx(dmSans.className, "antialiased")}>
         {children}
