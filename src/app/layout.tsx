@@ -3,6 +3,7 @@ import { DM_Sans } from "next/font/google";
 import clsx from "clsx";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/next"
 
 // Load Google Font
 const dmSans = DM_Sans({ subsets: ["latin"] });
@@ -65,6 +66,7 @@ export default function RootLayout({
       </head>
       <body className={clsx(dmSans.className, "antialiased")}>
         {children}
+         <Analytics />
         <Toaster position="top-center" reverseOrder={false} />
       </body>
     </html>
