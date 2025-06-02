@@ -1,0 +1,26 @@
+{
+  "name": "Villa Lodji Svarga 2",
+  "short_name": "Lodji Svarga 2",
+  "description": "Villa eksklusif di Seturan, Yogyakarta. Mulai Rp375 juta. Passive income hingga Rp6 juta/bulan.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F4F7F1",
+  "theme_color": "#4A6B45",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

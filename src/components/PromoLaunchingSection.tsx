@@ -10,7 +10,7 @@ export const PromoLaunchingSection = () => {
       id="promo"
       className="relative bg-black text-white overflow-hidden min-h-screen flex items-center justify-center"
     >
-      {/* Background Layer */}
+      {/* Background Image Layer */}
       <div className="absolute inset-0 z-0">
         <Image
           src={villaImage}
@@ -29,9 +29,10 @@ export const PromoLaunchingSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 drop-shadow-xl text-white"
+          className="text-3xl sm:text-5xl font-extrabold leading-tight mb-6 drop-shadow-xl"
         >
-          Grand Launching <span className="text-yellow-400">Villa Lodjisvarga 2</span>
+          Promo Launching{' '}
+          <span className="text-yellow-400">Villa Lodjisvarga 2</span>
         </motion.h2>
 
         <motion.p
@@ -39,10 +40,9 @@ export const PromoLaunchingSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2, duration: 0.7 }}
-          className="text-lg sm:text-xl text-white/90 mb-6 font-light drop-shadow-sm leading-relaxed"
+          className="text-base sm:text-lg text-white/90 mb-6 font-light leading-relaxed"
         >
-          Kesempatan emas memiliki{' '}
-          <span className="text-yellow-400 font-semibold">villa eksklusif</span> di jantung Jogja. <br />
+          Miliki <span className="text-yellow-400 font-semibold">villa eksklusif</span> di lokasi strategis Jogja. <br />
           Cukup <span className="text-yellow-400 font-bold">Rp375 JUTA</span>, dapatkan{' '}
           <span className="font-semibold">passive income hingga Rp6 Juta/bulan</span>.
         </motion.p>
@@ -54,12 +54,12 @@ export const PromoLaunchingSection = () => {
           transition={{ delay: 0.4, duration: 0.6 }}
         >
           <a
-            href="https://wa.me/6283144940611"
+            href="https://wa.me/6283144940611?text=Halo%2C%20saya%20tertarik%20dengan%20Villa%20Lodji%20Svarga%202%20di%20Yogyakarta%20%F0%9F%8F%A1.%20Boleh%20minta%20info%20lengkapnya%3F&utm_source=landingpage&utm_medium=cta_button&utm_campaign=promo_launching"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-yellow-400 text-[#2E2E2E] font-semibold px-10 py-4 rounded-full shadow-xl hover:bg-yellow-300 hover:scale-105 transition-transform duration-300 text-lg sm:text-xl"
+            className="inline-block bg-yellow-400 text-[#2E2E2E] font-semibold px-10 py-4 rounded-full shadow-xl hover:bg-yellow-300 hover:scale-105 transition-transform duration-300 text-base sm:text-lg"
           >
-          Ambil Promo Sekarang
+            Ambil Promo Sekarang
           </a>
         </motion.div>
 
@@ -70,7 +70,8 @@ export const PromoLaunchingSection = () => {
           transition={{ delay: 0.7, duration: 0.6 }}
           className="mt-6 text-sm sm:text-base text-white/70 font-light"
         >
-          Promo terbatas untuk <span className="font-semibold text-white">4 pembeli pertama</span>.
+          Promo eksklusif hanya untuk{' '}
+          <span className="font-semibold text-white">4 pembeli pertama</span>.
         </motion.p>
       </div>
     </section>

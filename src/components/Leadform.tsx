@@ -3,13 +3,20 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
-const phonePattern = /^(?:\+62|0)\d{9,14}$/;
+const phonePattern = /^(?:\+62|0)[0-9]{9,14}$/;
 
 export const LeadForm: React.FC = () => {
-  const [form, setForm] = useState({ nama: '', whatsapp: '', keterangan: '' });
+  const [form, setForm] = useState({
+    nama: '',
+    whatsapp: '',
+    keterangan: '',
+  });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -27,11 +34,12 @@ export const LeadForm: React.FC = () => {
     }
 
     if (!phonePattern.test(whatsapp)) {
-      toast.error('Nomor WhatsApp tidak valid. Harus diawali 0 atau +62 dan 10–15 digit.');
+      toast.error('Nomor WhatsApp tidak valid. Harus diawali 0 atau +62 dan berisi 10–15 digit.');
       return;
     }
 
     setIsSubmitting(true);
+
     try {
       const response = await fetch('/api/lead', {
         method: 'POST',
@@ -40,15 +48,16 @@ export const LeadForm: React.FC = () => {
       });
 
       const result = await response.json();
+
       if (result.success) {
-        toast.success('✅ Data formulir berhasil dikirim.');
+        toast.success('✅ Data berhasil dikirim.');
         setForm({ nama: '', whatsapp: '', keterangan: '' });
       } else {
-        toast.error('❌ Gagal mengirim data formulir.');
+        toast.error('❌ Gagal mengirim data. Silakan coba lagi.');
       }
     } catch (error) {
-      console.error('Fetch error:', error);
-      toast.error('⚠️ Terjadi kesalahan saat mengirim data.');
+      console.error('Error saat submit:', error);
+      toast.error('⚠️ Terjadi kesalahan pada server.');
     } finally {
       setIsSubmitting(false);
     }
@@ -56,8 +65,6 @@ export const LeadForm: React.FC = () => {
 
   return (
     <section id="booking" className="relative bg-white text-[#3B4A3A] py-20 sm:py-24 overflow-hidden">
-
-      {/* Container */}
       <div className="container px-4 max-w-2xl mx-auto relative z-10">
         <h2 className="text-4xl sm:text-5xl text-center font-bold tracking-tight mb-4 text-[#4A6B45] drop-shadow-md">
           Tertarik Berinvestasi?
@@ -67,7 +74,6 @@ export const LeadForm: React.FC = () => {
           <strong className="text-[#4A6B45]">Villa Lodji Svarga 2</strong>.
         </p>
 
-        {/* Form Card */}
         <form
           onSubmit={handleSubmit}
           noValidate
@@ -80,8 +86,8 @@ export const LeadForm: React.FC = () => {
             </label>
             <input
               type="text"
-              name="nama"
               id="nama"
+              name="nama"
               value={form.nama}
               onChange={handleChange}
               placeholder="Contoh: Andi Saputra"
@@ -98,14 +104,14 @@ export const LeadForm: React.FC = () => {
             </label>
             <input
               type="tel"
-              name="whatsapp"
               id="whatsapp"
+              name="whatsapp"
               value={form.whatsapp}
               onChange={handleChange}
               placeholder="081234567890 atau +6281234567890"
               className="w-full px-4 py-3 border border-[#B1C29E] rounded-lg focus:ring-2 focus:ring-[#8FA87A] bg-white text-[#3B4A3A] shadow-sm"
-              pattern={phonePattern.source}
-              title="Nomor WhatsApp harus terdiri dari 10–15 digit angka dan boleh diawali 0 atau +62."
+              pattern="^(?:\+62|0)[0-9]{9,14}$"
+              title="Nomor WhatsApp harus diawali 0 atau +62 dan terdiri dari 10–15 digit angka."
               autoComplete="tel"
               required
             />
@@ -117,8 +123,8 @@ export const LeadForm: React.FC = () => {
               Keterangan Tambahan
             </label>
             <textarea
-              name="keterangan"
               id="keterangan"
+              name="keterangan"
               value={form.keterangan}
               onChange={handleChange}
               rows={4}
@@ -127,7 +133,7 @@ export const LeadForm: React.FC = () => {
             />
           </div>
 
-          {/* Button */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -137,9 +143,9 @@ export const LeadForm: React.FC = () => {
             }`}
           >
             {isSubmitting ? (
-              <div className="flex items-center space-x-2">
+              <>
                 <svg
-                  className="animate-spin h-5 w-5 text-white"
+                  className="animate-spin h-5 w-5 mr-2 text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -158,8 +164,8 @@ export const LeadForm: React.FC = () => {
                     d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                   />
                 </svg>
-                <span>Mengirim...</span>
-              </div>
+                Mengirim...
+              </>
             ) : (
               'Kirim Sekarang'
             )}

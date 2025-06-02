@@ -7,87 +7,102 @@ import MinusIcon from "../assets/icons/minus.svg";
 
 const faqItems = [
   {
-    question: "Apa Legalitas Villa Lodjisvarga 2?",
-    answer: "Villa Lodji Svarga 2 menggunakan skema Leasehold 20 tahun yang sudah dinotariskan secara resmi, sehingga legalitasnya aman dan jelas untuk investasi jangka menengah hingga panjang.",
+    question: "Apa legalitas Villa Lodji Svarga 2?",
+    answer:
+      "Villa Lodji Svarga 2 menggunakan skema leasehold selama 20 tahun yang sudah dinotariskan secara resmi. Legalitas aman dan transparan, cocok untuk investasi jangka menengah hingga panjang.",
   },
   {
     question: "Berapa estimasi passive income dari investasi ini?",
-    answer: "Estimasi passive income mencapai Rp6 juta per bulan atau sekitar Rp75 juta per tahun, tergantung tingkat okupansi dan musim liburan. Proyeksi balik modal dapat tercapai dalam 5 tahun, dijamin dengan akta notaris.",
+    answer:
+      "Estimasi passive income bisa mencapai Rp6 juta per bulan atau sekitar Rp75 juta per tahun, tergantung okupansi dan musim. Proyeksi balik modal dalam 5 tahun, didukung dengan akta notaris.",
   },
   {
     question: "Apakah villa sudah full furnished dan siap disewakan?",
-    answer: "Ya, villa sudah dilengkapi dengan furnitur modern dan desain estetik, sehingga siap langsung disewakan tanpa perlu renovasi atau penambahan apapun.",
+    answer:
+      "Ya, villa sudah dilengkapi furnitur lengkap dan desain interior estetik. Siap disewakan tanpa perlu renovasi tambahan.",
   },
   {
     question: "Bagaimana mekanisme bagi hasil dari penyewaan villa?",
-    answer: "Sistem bagi hasil adalah 70:30, di mana 70% pendapatan sewa diberikan kepada investor, dan 30% untuk manajemen properti yang mengelola operasional, pemasaran, dan perawatan villa.",
+    answer:
+      "Bagi hasil adalah 70:30, di mana investor menerima 70% dari hasil sewa, dan 30% untuk manajemen operasional, pemasaran, dan perawatan villa.",
   },
 ];
 
-const AccordionItem = memo(({ question, answer }: { question: string; answer: string }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const AccordionItem = memo(
+  ({ question, answer, index }: { question: string; answer: string; index: number }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const buttonId = `faq-button-${index}`;
+    const panelId = `faq-panel-${index}`;
 
-  return (
-    <div className="border-b border-[#CBD5C0] py-5 transition-all">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        className="flex items-center justify-between w-full text-left group"
-      >
-        <span className="text-lg sm:text-xl font-medium text-[#556B57] group-hover:text-[#7A8C74] transition-colors">
-          {question}
-        </span>
-        <span className="transition-transform duration-300 ease-in-out">
-          {isOpen ? (
-            <MinusIcon className="w-5 h-5 text-[#7A8C74]" />
-          ) : (
-            <PlusIcon className="w-5 h-5 text-[#7A8C74]" />
+    return (
+      <div className="border-b border-[#CBD5C0] py-5">
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          id={buttonId}
+          className="flex items-center justify-between w-full text-left group transition-colors"
+        >
+          <span className="text-lg sm:text-xl font-medium text-[#556B57] group-hover:text-[#7A8C74]">
+            {question}
+          </span>
+          <span className="transition-transform duration-300 ease-in-out">
+            {isOpen ? (
+              <MinusIcon className="w-5 h-5 text-[#7A8C74]" />
+            ) : (
+              <PlusIcon className="w-5 h-5 text-[#7A8C74]" />
+            )}
+          </span>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div
+              id={panelId}
+              role="region"
+              aria-labelledby={buttonId}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden mt-3 text-base leading-relaxed text-[#5B5B5B]"
+            >
+              {answer}
+            </motion.div>
           )}
-        </span>
-      </button>
-
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden text-[#5B5B5B] mt-3 leading-relaxed text-base"
-          >
-            {answer}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-});
+        </AnimatePresence>
+      </div>
+    );
+  }
+);
 AccordionItem.displayName = "AccordionItem";
 
 export function FAQs() {
   return (
-    <section
-      id="faq"
-      className="bg-[#E8ECE4] py-20 sm:py-28 text-[#2E2E2E]"
-    >
+    <section id="faq" className="bg-[#E8ECE4] py-20 sm:py-28 text-[#2E2E2E]">
       <div className="container mx-auto px-6 max-w-4xl">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-6 text-[#556B57]">
+        <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8 text-[#556B57]">
           Pertanyaan Umum
         </h2>
 
         <div className="space-y-4">
           {faqItems.map((item, idx) => (
-            <AccordionItem key={idx} question={item.question} answer={item.answer} />
+            <AccordionItem
+              key={idx}
+              index={idx}
+              question={item.question}
+              answer={item.answer}
+            />
           ))}
         </div>
 
         <div className="mt-16 text-center">
           <p className="text-lg text-[#556B57] mb-4">
-            Masih punya pertanyaan atau butuh simulasi ROI?
+            Masih ada pertanyaan atau ingin simulasi ROI?
           </p>
           <a
-            href="https://wa.me/6283144940611?text=Halo%20saya%20ingin%20tanya-tanya%20tentang%20Villa%20Lodji%20Svarga%202"
+            href="https://wa.me/6283144940611?text=Halo%20saya%20ingin%20tanya-tanya%20tentang%20Villa%20Lodji%20Svarga%202&utm_source=landingpage&utm_medium=chat_button&utm_campaign=info_request"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-full font-semibold transition-shadow shadow-md hover:shadow-lg"
