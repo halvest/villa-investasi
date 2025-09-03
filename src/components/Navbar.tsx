@@ -11,11 +11,7 @@ export const Navbar = () => {
   // Scroll listener
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -23,22 +19,22 @@ export const Navbar = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 z-50 transition-all duration-500 ease-in-out ${
         scrolled
-          ? "bg-white/40 backdrop-blur-xl border-b border-white/30 shadow-lg py-2"
-          : "bg-white/20 backdrop-blur-md border-b border-white/20 py-4"
+          ? "bg-white/60 backdrop-blur-xl border-b border-white/30 shadow-md py-2"
+          : "bg-white/30 backdrop-blur-md border-b border-white/10 py-4"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center transition-all duration-500 ease-in-out">
         {/* Logo */}
         <div className="flex items-center gap-2 sm:gap-3">
           <LogoImage
-            className={`transition-all duration-300 ${
+            className={`transition-all duration-500 ease-in-out ${
               scrolled ? "h-8 w-8" : "h-10 w-10"
             }`}
           />
           <span
-            className={`font-bold tracking-tight transition-all duration-300 ${
+            className={`font-bold tracking-tight transition-all duration-500 ease-in-out ${
               scrolled ? "text-lg text-slate-800" : "text-xl text-slate-900"
             }`}
           >
@@ -52,8 +48,8 @@ export const Navbar = () => {
           role="navigation"
           aria-label="Main menu"
         >
-          <a href="#promo" className="hover:text-amber-500 transition-colors">
-            Promo
+          <a href="#hero" className="hover:text-amber-500 transition-colors">
+            Beranda
           </a>
           <a href="#benefit" className="hover:text-amber-500 transition-colors">
             Benefit
@@ -72,7 +68,7 @@ export const Navbar = () => {
           </a>
           <a
             href="#booking"
-            className="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full transition-colors shadow-md"
+            className="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full transition-all duration-300 ease-in-out shadow-md"
           >
             Booking Sekarang
           </a>
@@ -80,7 +76,7 @@ export const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden border border-slate-400/40 p-2 rounded-lg bg-white/30 backdrop-blur-sm hover:bg-white/50 transition"
+          className="md:hidden border border-slate-400/40 p-2 rounded-lg bg-white/30 backdrop-blur-sm hover:bg-white/50 transition-all duration-300 ease-in-out"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle mobile menu"
         >
@@ -90,13 +86,15 @@ export const Navbar = () => {
 
       {/* Mobile Menu Dropdown */}
       <div
-        className={`md:hidden overflow-hidden backdrop-blur-xl border-t border-white/20 transition-all duration-500 ease-in-out ${
-          menuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+        className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${
+          menuOpen
+            ? "max-h-[500px] opacity-100"
+            : "max-h-0 opacity-0 pointer-events-none"
         }`}
       >
-        <nav className="flex flex-col gap-4 px-4 pb-6 pt-3 text-sm font-medium text-slate-800 bg-white/40 backdrop-blur-xl rounded-b-2xl shadow-md">
-          <a href="#promo" className="hover:text-amber-500 transition-colors">
-            Promo
+        <nav className="flex flex-col gap-4 px-4 pb-6 pt-3 text-sm font-medium text-slate-800 bg-white/70 backdrop-blur-xl rounded-b-2xl shadow-lg">
+          <a href="#hero" className="hover:text-amber-500 transition-colors">
+            Beranda
           </a>
           <a href="#benefit" className="hover:text-amber-500 transition-colors">
             Benefit
@@ -115,7 +113,7 @@ export const Navbar = () => {
           </a>
           <a
             href="#booking"
-            className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full text-center transition-colors shadow-md"
+            className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full text-center transition-all duration-300 ease-in-out shadow-md"
           >
             Booking Sekarang
           </a>

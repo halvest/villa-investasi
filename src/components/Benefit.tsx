@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSwipeable } from 'react-swipeable';
 import {
   ShieldCheck,
   TrendingUp,
@@ -62,7 +63,7 @@ const BenefitCard = ({
   title: string;
   description: string;
 }) => (
-  <div className="h-full rounded-2xl border border-white/20 bg-white/60 p-5 sm:p-7 shadow-md backdrop-blur-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+  <div className="h-full rounded-2xl border border-white/20 bg-white/90 p-5 sm:p-7 shadow-md backdrop-blur-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
     <div className="mb-4 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-amber-100">
       {icon}
     </div>
@@ -75,37 +76,42 @@ const BenefitCard = ({
   </div>
 );
 
+const SliderNavButton = ({
+  onClick,
+  label,
+  children,
+}: {
+  onClick: () => void;
+  label: string;
+  children: ReactNode;
+}) => (
+  <button
+    onClick={onClick}
+    aria-label={label}
+    className="rounded-full bg-white/80 p-2.5 sm:p-3 text-gray-700 shadow-md backdrop-blur-sm transition hover:bg-amber-400 hover:text-white"
+  >
+    {children}
+  </button>
+);
+
 const sliderVariants = {
   incoming: (direction: number) => ({
     x: direction > 0 ? '100%' : '-100%',
     opacity: 0,
-    scale: 0.9,
+    scale: 0.95,
   }),
   active: {
     x: 0,
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
+    transition: { duration: 0.45, ease: [0.34, 1.56, 0.64, 1] },
   },
   outgoing: (direction: number) => ({
     x: direction < 0 ? '100%' : '-100%',
     opacity: 0,
-    scale: 0.9,
+    scale: 0.95,
     transition: { duration: 0.35, ease: 'easeIn' },
   }),
-};
-
-const gridContainerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const gridItemVariants = {
-  hidden: { opacity: 0, y: 25 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
 };
 
 export function VillaBenefitsPage() {
@@ -116,12 +122,20 @@ export function VillaBenefitsPage() {
   const benefitIndex =
     ((page % benefits.length) + benefits.length) % benefits.length;
 
+  // Swipe handlers
+  const handlers = useSwipeable({
+    onSwipedLeft: () => paginate(1),
+    onSwipedRight: () => paginate(-1),
+    preventScrollOnSwipe: true,
+    trackMouse: true,
+  });
+
   return (
     <section
       id="benefit"
       className="relative overflow-hidden py-14 sm:py-20 bg-gray-50"
     >
-      {/* Background */}
+      {/* Background accents */}
       <div aria-hidden="true" className="absolute inset-0 -z-10">
         <div className="absolute top-0 right-0 h-64 w-64 sm:h-80 sm:w-80 rounded-full bg-amber-200/40 blur-3xl" />
         <div className="absolute bottom-1/4 left-0 h-52 w-52 sm:h-72 sm:w-72 rounded-full bg-sky-200/30 blur-3xl" />
@@ -146,13 +160,13 @@ export function VillaBenefitsPage() {
           </p>
         </motion.div>
 
-        {/* Mobile carousel */}
-        <div className="md:hidden">
-          <div className="relative mx-auto max-w-xs sm:max-w-sm h-auto min-h-[18rem] sm:min-h-[20rem] overflow-hidden">
+        {/* Mobile carousel (swipeable) */}
+        <div className="md:hidden" {...handlers}>
+          <div className="relative mx-auto max-w-xs sm:max-w-sm min-h-[19rem] sm:min-h-[20rem] overflow-hidden">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
                 key={page}
-                className="absolute inset-0 p-1"
+                className="absolute inset-0 p-2"
                 custom={direction}
                 variants={sliderVariants}
                 initial="incoming"
@@ -164,43 +178,44 @@ export function VillaBenefitsPage() {
             </AnimatePresence>
           </div>
 
-          {/* Nav */}
+          {/* Navigation */}
           <div className="mt-6 flex items-center justify-center gap-4">
-            <button
-              onClick={() => paginate(-1)}
-              className="rounded-full bg-white/80 p-2.5 sm:p-3 text-gray-700 shadow-md backdrop-blur-sm transition hover:bg-amber-400 hover:text-white"
-            >
+            <SliderNavButton onClick={() => paginate(-1)} label="Sebelumnya">
               <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
+            </SliderNavButton>
+
             <div className="flex items-center gap-2">
               {benefits.map((_, i) => (
                 <div
                   key={i}
-                  className={`h-2 rounded-full transition-all ${
+                  onClick={() => setPage([i, i > benefitIndex ? 1 : -1])}
+                  className={`h-2 cursor-pointer rounded-full transition-all ${
                     i === benefitIndex ? 'w-4 bg-amber-500' : 'w-2 bg-gray-300'
                   }`}
                 />
               ))}
             </div>
-            <button
-              onClick={() => paginate(1)}
-              className="rounded-full bg-white/80 p-2.5 sm:p-3 text-gray-700 shadow-md backdrop-blur-sm transition hover:bg-amber-400 hover:text-white"
-            >
+
+            <SliderNavButton onClick={() => paginate(1)} label="Berikutnya">
               <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
+            </SliderNavButton>
           </div>
         </div>
 
         {/* Desktop grid */}
         <motion.div
           className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
-          variants={gridContainerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
         >
           {benefits.map((benefit, i) => (
-            <motion.div key={i} variants={gridItemVariants}>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: 'easeOut', delay: i * 0.1 }}
+            >
               <BenefitCard {...benefit} />
             </motion.div>
           ))}
