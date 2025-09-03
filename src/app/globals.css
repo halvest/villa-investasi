@@ -2,26 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles for html and body */
+/* --- Base Styles --- */
 html,
 body {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
-  background-color: #E8ECE4;
-  color: #2E2E2E;
+  background-color: #F9FAFB; /* lebih netral daripada hijau */
+  color: #1F2937; /* slate-800, elegan */
   font-family: 'Inter', system-ui, sans-serif;
   line-height: 1.6;
 }
 
-/* Ensure sticky elements behave properly */
+/* Sticky element optimization */
 .sticky {
   will-change: transform;
   backface-visibility: hidden;
   transform: translateZ(0);
 }
 
-
-/* Utility class for parallax effect */
+/* Parallax helper */
 .parallax-layer {
   will-change: transform;
   transition: transform 0.1s ease-out;
@@ -33,21 +32,21 @@ body {
   animation: gradient 8s linear infinite;
 }
 
-/* Gradient text style */
+/* Gradient text style (oranye/gold) */
 .text-gradient {
-  background-image: linear-gradient(to right, #facc15, #fbbf24);
+  background-image: linear-gradient(to right, #f59e0b, #fbbf24);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
 }
 
-/* Text shadow for emphasis */
+/* Text shadow */
 .text-shadow {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* Standard responsive container */
+/* Container */
 .container {
   max-width: 1280px;
   margin-left: auto;
@@ -56,13 +55,13 @@ body {
   padding-right: 1rem;
 }
 
-/* Section padding helper */
+/* Section padding */
 .section {
   padding-top: 4rem;
   padding-bottom: 4rem;
 }
 
-/* Infinite scroll keyframe animation */
+/* Infinite scroll animation */
 @keyframes infinite-scroll {
   from {
     transform: translateX(0);
@@ -72,7 +71,7 @@ body {
   }
 }
 
-/* Gradient animation for backgrounds */
+/* Gradient animation */
 @keyframes gradient {
   0% {
     background-position: 0 0;

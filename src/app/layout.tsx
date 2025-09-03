@@ -3,6 +3,7 @@ import { DM_Sans } from "next/font/google";
 import clsx from "clsx";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { Analytics } from "@vercel/analytics/next";
 
 // Load Google Font
@@ -57,7 +58,7 @@ export const metadata: Metadata = {
         url: "https://www.haspro.me/og.jpg",
         width: 1200,
         height: 630,
-        alt: "Villa Lodji Svarga 2",
+        alt: "Villa Lodjisvarga Seturan Yogyakarta - Investasi Properti Strategis",
       },
     ],
     locale: "id_ID",
@@ -65,7 +66,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Villa Lodji Svarga 2 - Properti Strategis Yogyakarta",
+    title: "Villa Lodjisvarga Seturan Yogyakarta - Investasi Properti Strategis",
     description:
       "Villa eksklusif dengan ROI cepat & passive income hingga Rp6 juta/bulan. Harga mulai Rp375 juta.",
     images: ["https://www.haspro.me/og.jpg"],
@@ -99,6 +100,7 @@ export default function RootLayout({
         {children}
         <Analytics />
         <Toaster position="top-center" reverseOrder={false} />
+        <WhatsAppButton />
       </body>
     </html>
   );

@@ -1,202 +1,191 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { NumericFormat } from 'react-number-format';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
-import { formatRupiah } from './lib/formatRupiah';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TrendingUp, Calendar, ChevronDown } from 'lucide-react';
 
-const MAX_YEAR = 20;
-const OPERATIONAL_COST_PERCENTAGE = 0.25;
-const INVESTOR_SHARE_PERCENTAGE = 0.7;
+// --- Helper Function ---
+const formatRupiah = (value: number) =>
+  new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+
+// --- Konstanta ---
+const MODAL_INVESTASI = 375_000_000;
+const BIAYA_OPERASIONAL_PERSEN = 0.25;
+const BAGI_HASIL_INVESTOR_PERSEN = 0.7;
 
 export function BEPCalculator() {
-  const [price, setPrice] = useState(375_000_000);
-  const [rentPerDay, setRentPerDay] = useState(1_000_000);
-  const [occupiedDays, setOccupiedDays] = useState(12);
-  const [selectedYear, setSelectedYear] = useState(1);
+  const [hargaSewa, setHargaSewa] = useState(600_000);
+  const [hariTerisi, setHariTerisi] = useState(20);
+  const [showDetails, setShowDetails] = useState(false);
 
-  const grossMonthly = rentPerDay * occupiedDays;
-  const operationalCost = grossMonthly * OPERATIONAL_COST_PERCENTAGE;
-  const netMonthly = grossMonthly - operationalCost;
-  const investorMonthly = netMonthly * INVESTOR_SHARE_PERCENTAGE;
-  const yearlyIncome = investorMonthly * 12;
-
-  const totalIncomeByYear = Array.from({ length: MAX_YEAR }, (_, i) => (i + 1) * yearlyIncome);
-  const bepIndex = totalIncomeByYear.findIndex((income) => income >= price);
-  const bepYear = bepIndex !== -1 ? bepIndex + 1 : null;
-  const totalIncomeNow = totalIncomeByYear[selectedYear - 1] ?? 0;
-  const progress = Math.min((totalIncomeNow / price) * 100, 100);
+  // --- Kalkulasi Inti ---
+  const { pendapatanKotor, biayaOperasional, profitBersih, investorBulanan, bepTahun } = useMemo(() => {
+    const gross = hariTerisi * hargaSewa;
+    const operational = gross * BIAYA_OPERASIONAL_PERSEN;
+    const net = gross - operational;
+    const investor = net * BAGI_HASIL_INVESTOR_PERSEN;
+    const tahunan = investor * 12;
+    const bep = tahunan > 0 ? MODAL_INVESTASI / tahunan : 0;
+    return {
+      pendapatanKotor: gross,
+      biayaOperasional: operational,
+      profitBersih: net,
+      investorBulanan: investor,
+      bepTahun: bep > 0 ? bep.toFixed(1) : 'N/A',
+    };
+  }, [hargaSewa, hariTerisi]);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
-      <div className="bg-white border border-gray-200 rounded-3xl shadow-xl p-4 sm:p-6 md:p-8 lg:p-10 space-y-8 sm:space-y-10">
-        <Header />
-        <div className="flex flex-col gap-8 lg:grid lg:grid-cols-2 lg:gap-10">
-          <div className="space-y-6">
-            <LabeledInput label="Harga Villa" value={price} onChange={setPrice} />
-            <LabeledInput label="Harga Sewa / Hari" value={rentPerDay} onChange={setRentPerDay} />
-            <SliderInput
-              label="Hari Terisi / Bulan"
-              value={occupiedDays}
-              min={0}
-              max={30}
-              onChange={setOccupiedDays}
-              hint={`${occupiedDays} hari x ${formatRupiah(rentPerDay)} = ${formatRupiah(grossMonthly)} / bulan`}
-            />
-            <SliderInput
-              label={`Simulasi Tahun ke-${selectedYear}`}
-              value={selectedYear}
-              min={1}
-              max={MAX_YEAR}
-              onChange={setSelectedYear}
-              hint={`Pendapatan investor tahun ke-${selectedYear}: ${formatRupiah(totalIncomeNow)}`}
-            />
+    <section
+      id="kalkulator"
+      className="py-20 bg-slate-900 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(250,204,21,0.08),rgba(255,255,255,0))]"
+      aria-labelledby="kalkulator-heading"
+    >
+      <div className="container px-6 mx-auto">
+        {/* Heading */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="max-w-2xl mx-auto text-center mb-14"
+        >
+          <h2
+            id="kalkulator-heading"
+            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white"
+          >
+            Kalkulasi <span className="text-yellow-400">Balik Modal</span>
+          </h2>
+          <p className="mt-3 text-base sm:text-lg text-slate-300">
+            Simulasikan potensi keuntungan pasif dari investasi villa Anda.
+          </p>
+        </motion.div>
+
+        {/* Card Kalkulator */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+          className="max-w-3xl mx-auto bg-slate-800/40 backdrop-blur-lg p-6 sm:p-10 rounded-3xl shadow-2xl border border-white/20"
+        >
+          {/* Hasil Utama */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-center">
+            <div>
+              <p className="text-sm sm:text-base font-semibold text-yellow-300 flex items-center justify-center gap-2">
+                <TrendingUp className="w-5 h-5" /> Profit Bersih / Bulan
+              </p>
+              <p className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mt-2 drop-shadow-lg">
+                {formatRupiah(investorBulanan)}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm sm:text-base font-semibold text-yellow-300 flex items-center justify-center gap-2">
+                <Calendar className="w-5 h-5" /> Estimasi Balik Modal
+              </p>
+              <p className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mt-2 drop-shadow-lg">
+                {bepTahun} <span className="text-lg sm:text-xl text-slate-300">Tahun</span>
+              </p>
+            </div>
           </div>
-          <IncomeBreakdown
-            gross={grossMonthly}
-            operational={operationalCost}
-            net={netMonthly}
-            investor={investorMonthly}
-            bepYear={bepYear}
-            totalIncomeByYear={totalIncomeByYear}
-            progress={progress}
-            price={price}
-          />
-        </div>
+
+          {/* Input & Slider */}
+          <div className="space-y-8 my-10 border-y border-white/10 py-8">
+            <div>
+              <label className="block text-base font-bold text-white mb-2">
+                Harga Sewa / Malam
+              </label>
+              <NumericFormat
+                value={hargaSewa}
+                onValueChange={({ floatValue }) => setHargaSewa(floatValue ?? 0)}
+                thousandSeparator="."
+                decimalSeparator=","
+                prefix="Rp "
+                className="w-full px-4 py-3 text-lg sm:text-xl font-semibold bg-white/5 border-2 border-white/20 rounded-lg text-white placeholder-white/50 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition"
+              />
+            </div>
+
+            <div>
+              <label className="block text-base font-bold text-white mb-3">
+                Hari Terisi / Bulan
+              </label>
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Slider
+                  min={1}
+                  max={30}
+                  value={hariTerisi}
+                  onChange={(v) => setHariTerisi(Number(v))}
+                  trackStyle={{ backgroundColor: '#facc15', height: 8 }}
+                  handleStyle={{
+                    borderColor: '#facc15',
+                    height: 24,
+                    width: 24,
+                    marginTop: -8,
+                    backgroundColor: '#facc15',
+                    boxShadow: '0 0 0 4px rgba(30, 41, 59, 0.5)',
+                  }}
+                  railStyle={{ backgroundColor: 'rgba(255,255,255,0.1)', height: 8 }}
+                />
+                <span className="text-xl sm:text-2xl font-bold text-white px-4 py-2 rounded-lg border border-white/20 bg-white/5">
+                  {hariTerisi} hari
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Detail Breakdown */}
+          <div>
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              className="w-full flex justify-center items-center gap-2 text-sm sm:text-base font-semibold text-yellow-300 hover:text-white transition-colors"
+            >
+              <span>Lihat Rincian Perhitungan</span>
+              <motion.div animate={{ rotate: showDetails ? 180 : 0 }}>
+                <ChevronDown />
+              </motion.div>
+            </button>
+            <AnimatePresence>
+              {showDetails && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: 'auto', marginTop: '20px' }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  className="text-white/80 overflow-hidden"
+                >
+                  <div className="space-y-3 bg-black/20 p-6 rounded-lg">
+                    <div className="flex justify-between">
+                      <span>Pendapatan Kotor Bulanan:</span>
+                      <span className="font-semibold text-white">
+                        {formatRupiah(pendapatanKotor)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Biaya Operasional (25%):</span>
+                      <span className="font-semibold text-red-400">
+                        - {formatRupiah(biayaOperasional)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-t border-white/20 pt-3 mt-3">
+                      <span>Profit Bersih (sblm. bagi hasil):</span>
+                      <span className="font-semibold text-white">
+                        {formatRupiah(profitBersih)}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
       </div>
     </section>
-  );
-}
-
-function Header() {
-  return (
-    <div className="text-center px-2">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-800 mb-2">
-        🏡 Simulasi Investasi Villa Lodjisvarga 2
-      </h2>
-    </div>
-  );
-}
-
-function LabeledInput({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  onChange: (val: number) => void;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <NumericFormat
-        value={value}
-        allowNegative={false}
-        thousandSeparator="."
-        decimalSeparator=","
-        prefix="Rp"
-        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-        onValueChange={({ floatValue }) => onChange(floatValue ?? 0)}
-      />
-    </div>
-  );
-}
-
-function SliderInput({
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  hint,
-}: {
-  label: string;
-  value: number;
-  onChange: (val: number) => void;
-  min: number;
-  max: number;
-  hint: string;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-      <Slider
-        min={min}
-        max={max}
-        value={value}
-        onChange={(v) => onChange(Number(v))}
-        trackStyle={{ backgroundColor: '#22c55e', height: 6 }}
-        handleStyle={{
-          borderColor: '#22c55e',
-          height: 20,
-          width: 20,
-          marginTop: -7,
-          backgroundColor: '#22c55e',
-        }}
-        railStyle={{ backgroundColor: '#D1D5DB', height: 6 }}
-      />
-      <p className="mt-2 text-sm text-gray-500">{hint}</p>
-    </div>
-  );
-}
-
-function IncomeBreakdown({
-  gross,
-  operational,
-  net,
-  investor,
-  bepYear,
-  totalIncomeByYear,
-  progress,
-  price,
-}: {
-  gross: number;
-  operational: number;
-  net: number;
-  investor: number;
-  bepYear: number | null;
-  totalIncomeByYear: number[];
-  progress: number;
-  price: number;
-}) {
-  return (
-    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6 space-y-4 shadow-inner">
-      <div className="grid grid-cols-2 gap-3 text-sm text-gray-700">
-        <p>💰 Pendapatan Kotor:</p>
-        <p className="text-right font-medium">{formatRupiah(gross)} / bulan</p>
-        <p>🔧 Biaya Operasional (25%):</p>
-        <p className="text-right">{formatRupiah(operational)}</p>
-        <p>💼 Pendapatan Bersih:</p>
-        <p className="text-right">{formatRupiah(net)}</p>
-        <p>👤 Investor (70%):</p>
-        <p className="text-right">{formatRupiah(investor)} / bulan</p>
-      </div>
-      <div>
-        <p className="text-sm font-medium text-gray-600 mb-1">Progress Menuju Balik Modal</p>
-        <div className="relative w-full h-5 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="absolute h-full bg-green-500 transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
-          <span className="absolute w-full text-center text-xs font-semibold text-white">
-            {progress.toFixed(1)}%
-          </span>
-        </div>
-      </div>
-      <div className="bg-green-100 border border-green-300 rounded-lg p-3 sm:p-4 text-sm text-green-900 font-medium">
-        {bepYear ? (
-          <>
-            <p>📈 Estimasi balik modal di <strong>tahun ke-{bepYear}</strong></p>
-            <p>Total akumulasi saat BEP: <strong>{formatRupiah(totalIncomeByYear[bepYear - 1])}</strong></p>
-          </>
-        ) : (
-          <p className="text-red-600">
-            ⚠️ Belum balik modal dalam {MAX_YEAR} tahun (Total: {formatRupiah(totalIncomeByYear[MAX_YEAR - 1])})
-          </p>
-        )}
-      </div>
-    </div>
   );
 }

@@ -1,123 +1,211 @@
 'use client';
 
-import Head from 'next/head';
-import { motion } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ShieldCheck,
+  TrendingUp,
+  Award,
+  Home,
+  Gift,
+  Briefcase,
+  ArrowLeft,
+  ArrowRight,
+} from 'lucide-react';
+import { ReactNode } from 'react';
+
+const benefits = [
+  {
+    icon: <ShieldCheck className="w-6 h-6 sm:w-7 sm:h-7 text-amber-900" />,
+    title: 'Investasi Aman & Terjamin',
+    description:
+      'Kontrak jelas dan jaminan BEP 5 tahun dengan notaris. Properti legal dan transparan untuk ketenangan Anda.',
+  },
+  {
+    icon: <TrendingUp className="w-6 h-6 sm:w-7 sm:h-7 text-amber-900" />,
+    title: 'Dapatkan Passive Income',
+    description:
+      'Potensi penghasilan hingga Rp6 Juta/bulan, dikelola penuh oleh tim profesional berpengalaman.',
+  },
+  {
+    icon: <Award className="w-6 h-6 sm:w-7 sm:h-7 text-amber-900" />,
+    title: 'Lokasi Super Premium',
+    description:
+      'Berlokasi di Seturan, pusat mahasiswa & wisata, dengan okupansi tinggi dan nilai properti terus naik.',
+  },
+  {
+    icon: <Home className="w-6 h-6 sm:w-7 sm:h-7 text-amber-900" />,
+    title: 'Unit Full Furnished',
+    description:
+      'Interior modern, elegan, dan siap pakai. Tanpa biaya tambahan, langsung disewakan.',
+  },
+  {
+    icon: <Gift className="w-6 h-6 sm:w-7 sm:h-7 text-amber-900" />,
+    title: 'Hak Menginap Gratis',
+    description:
+      'Nikmati 12x free stay per tahun — ideal untuk liburan keluarga sekaligus investasi.',
+  },
+  {
+    icon: <Briefcase className="w-6 h-6 sm:w-7 sm:h-7 text-amber-900" />,
+    title: 'Manajemen Profesional',
+    description:
+      'Semua operasional, penyewaan, dan perawatan properti dikelola penuh oleh tim ahli.',
+  },
+];
+
+const BenefitCard = ({
+  icon,
+  title,
+  description,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+}) => (
+  <div className="h-full rounded-2xl border border-white/20 bg-white/60 p-5 sm:p-7 shadow-md backdrop-blur-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    <div className="mb-4 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-amber-100">
+      {icon}
+    </div>
+    <h3 className="mb-2 text-base sm:text-lg font-semibold text-gray-900">
+      {title}
+    </h3>
+    <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+      {description}
+    </p>
+  </div>
+);
+
+const sliderVariants = {
+  incoming: (direction: number) => ({
+    x: direction > 0 ? '100%' : '-100%',
+    opacity: 0,
+    scale: 0.9,
+  }),
+  active: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
+  },
+  outgoing: (direction: number) => ({
+    x: direction < 0 ? '100%' : '-100%',
+    opacity: 0,
+    scale: 0.9,
+    transition: { duration: 0.35, ease: 'easeIn' },
+  }),
+};
+
+const gridContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const gridItemVariants = {
+  hidden: { opacity: 0, y: 25 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+};
 
 export function VillaBenefitsPage() {
-  const benefits = [
-    {
-      title: 'Full Furnished',
-      desc: 'Interior modern & lengkap. Tidak perlu renovasi atau tambahan biaya. Bisa langsung menghasilkan.',
-    },
-    {
-      title: 'Lokasi Premium',
-      desc: 'Hanya Rp375 juta untuk villa eksklusif di Seturan, Sleman – dekat kampus, pusat kuliner, dan wisata.',
-    },
-    {
-      title: 'Passive Income',
-      desc: 'Potensi penghasilan hingga Rp6 juta per bulan dari penyewaan, dikelola secara profesional.',
-    },
-    {
-      title: 'Balik Modal Cepat',
-      desc: 'ROI optimal – proyeksi pengembalian dalam 5 tahun dengan estimasi pendapatan Rp75 juta/tahun.',
-    },
-    {
-      title: '12x Free Stay per Tahun',
-      desc: 'Nikmati villa Anda pribadi 12 kali setiap tahun – cocok untuk liburan keluarga selama 20 tahun ke depan.',
-    },
-    {
-      title: 'Manajemen Profesional',
-      desc: 'Tidak perlu repot. Tim kami menangani reservasi, kebersihan, hingga pemasaran secara menyeluruh.',
-    },
-  ];
+  const [[page, direction], setPage] = useState([0, 0]);
+  const paginate = (newDirection: number) => {
+    setPage([page + newDirection, newDirection]);
+  };
+  const benefitIndex =
+    ((page % benefits.length) + benefits.length) % benefits.length;
 
   return (
-    <>
-      <Head>
-        <title>Keunggulan Investasi Villa di Jogja | Villa Lodji Svarga 2</title>
-        <meta
-          name="description"
-          content="Temukan benefit eksklusif investasi villa di Seturan, Jogja. Full furnished, ROI tinggi, dan dikelola profesional. Mulai hanya Rp375 juta!"
-        />
-        <meta
-          name="keywords"
-          content="investasi villa Jogja, villa Lodji Svarga, passive income Jogja, properti Sleman, ROI properti Jogja, villa dekat UPN Jogja"
-        />
-        <meta property="og:title" content="Investasi Villa di Jogja - Villa Lodji Svarga 2" />
-        <meta
-          property="og:description"
-          content="Miliki villa eksklusif dengan potensi cuan hingga Rp6 juta/bulan. Lokasi premium, pengelolaan profesional, dan full furnished."
-        />
-        <meta property="og:image" content="https://www.haspro.me/og-image.jpg" />
-        <meta property="og:url" content="https://www.haspro.me/benefit" />
-        <link rel="canonical" href="https://www.haspro.me/benefit" />
-      </Head>
+    <section
+      id="benefit"
+      className="relative overflow-hidden py-14 sm:py-20 bg-gray-50"
+    >
+      {/* Background */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10">
+        <div className="absolute top-0 right-0 h-64 w-64 sm:h-80 sm:w-80 rounded-full bg-amber-200/40 blur-3xl" />
+        <div className="absolute bottom-1/4 left-0 h-52 w-52 sm:h-72 sm:w-72 rounded-full bg-sky-200/30 blur-3xl" />
+      </div>
 
-      <main className="bg-[#E8ECE4] text-[#2E2E2E]">
-        {/* Transition */}
-        <div className="h-12 bg-gradient-to-b from-transparent to-[#E8ECE4]" />
-
-        {/* Benefit Section */}
-        <section
-          id="benefit"
-          aria-label="Keunggulan Investasi Villa Lodji Svarga 2"
-          className="py-24 px-4 sm:px-8 max-w-7xl mx-auto"
+      <div className="container mx-auto px-4">
+        {/* Heading */}
+        <motion.div
+          className="mx-auto mb-12 max-w-2xl text-center"
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl sm:text-5xl font-bold text-center text-[#445B47] mb-12 leading-tight">
-            Benefit Investasi di Villa Lodji Svarga 2
+          <h2 className="text-[clamp(1.6rem,5vw,2.5rem)] font-extrabold tracking-tight text-gray-900">
+            Kenapa <span className="text-amber-500">Investasi Ini</span> Terbaik
+            untuk Anda?
           </h2>
-
-          <div className="grid gap-8 sm:gap-10 md:grid-cols-2 lg:grid-cols-3">
-            {benefits.map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white border border-[#D5DACF] rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-lg transition duration-300"
-              >
-                <div className="flex items-start gap-3 mb-4">
-                  <CheckCircle className="text-[#7A9E7E] w-6 h-6 mt-1" aria-hidden="true" />
-                  <h3 className="text-xl font-semibold text-[#2E3E2D]">{item.title}</h3>
-                </div>
-                <p className="text-base text-[#444] leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="bg-[#445B47] py-20 px-6 text-white text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6 leading-snug">
-            Siap Miliki <span className="text-yellow-300">Villa Investasi</span> Anda?
-          </h2>
-          <p className="text-lg sm:text-xl max-w-2xl mx-auto mb-8 text-white/90">
-            Hubungi kami sekarang untuk informasi lengkap dan jadwal survei lokasi.
-            <br className="hidden sm:block" />
-            Kesempatan terbatas — jangan sampai terlewat!
+          <p className="mt-3 text-gray-600 text-sm sm:text-base">
+            Kombinasi keamanan, kenyamanan, dan keuntungan maksimal dalam satu
+            investasi properti eksklusif.
           </p>
+        </motion.div>
 
-          <a
-            href="https://wa.me/6283144940611?text=Halo%20saya%20ingin%20tanya-tanya%20tentang%20Villa%20Lodji%20Svarga%202&utm_source=landingpage&utm_medium=chat_button&utm_campaign=benefit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-white text-[#445B47] font-medium px-6 sm:px-8 py-3 sm:py-4 rounded-full shadow-md hover:bg-[#f0f4ef] transition duration-300 text-base sm:text-lg"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              className="w-5 h-5"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
+        {/* Mobile carousel */}
+        <div className="md:hidden">
+          <div className="relative mx-auto max-w-xs sm:max-w-sm h-auto min-h-[18rem] sm:min-h-[20rem] overflow-hidden">
+            <AnimatePresence initial={false} custom={direction} mode="wait">
+              <motion.div
+                key={page}
+                className="absolute inset-0 p-1"
+                custom={direction}
+                variants={sliderVariants}
+                initial="incoming"
+                animate="active"
+                exit="outgoing"
+              >
+                <BenefitCard {...benefits[benefitIndex]} />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Nav */}
+          <div className="mt-6 flex items-center justify-center gap-4">
+            <button
+              onClick={() => paginate(-1)}
+              className="rounded-full bg-white/80 p-2.5 sm:p-3 text-gray-700 shadow-md backdrop-blur-sm transition hover:bg-amber-400 hover:text-white"
             >
-              <path d="M20.52 3.48A11.958 11.958 0 0012 0C5.373 0 0 5.373 0 12a11.94 11.94 0 001.608 6.01L0 24l6.144-1.608A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12a11.958 11.958 0 00-3.48-8.52zm-8.52 18c-1.615 0-3.169-.39-4.56-1.128l-.325-.174-3.648.96.974-3.556-.212-.366A9.97 9.97 0 012 12C2 6.486 6.486 2 12 2c2.668 0 5.157 1.038 7.038 2.922A9.935 9.935 0 0122 12c0 5.514-4.486 10-10 10zm5.38-7.57c-.295-.148-1.742-.859-2.012-.956-.271-.098-.47-.148-.669.148-.197.295-.768.956-.941 1.154-.174.197-.346.222-.64.074-.295-.148-1.246-.459-2.373-1.462-.878-.782-1.47-1.748-1.641-2.043-.174-.296-.018-.456.13-.603.134-.132.297-.347.446-.521.149-.174.198-.297.297-.495.099-.198.05-.371-.025-.52-.075-.148-.669-1.611-.916-2.204-.242-.582-.487-.502-.669-.512-.174-.009-.372-.011-.57-.011-.198 0-.52.074-.793.371-.272.297-1.042 1.016-1.042 2.48s1.066 2.873 1.215 3.069c.148.198 2.099 3.204 5.088 4.491.71.306 1.263.489 1.694.626.712.226 1.361.194 1.872.118.571-.085 1.742-.712 1.99-1.4.248-.69.248-1.282.174-1.4-.074-.119-.271-.198-.566-.346z" />
-            </svg>
-            Konsultasi via WhatsApp
-          </a>
-        </section>
-      </main>
-    </>
+              <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
+            <div className="flex items-center gap-2">
+              {benefits.map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-2 rounded-full transition-all ${
+                    i === benefitIndex ? 'w-4 bg-amber-500' : 'w-2 bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => paginate(1)}
+              className="rounded-full bg-white/80 p-2.5 sm:p-3 text-gray-700 shadow-md backdrop-blur-sm transition hover:bg-amber-400 hover:text-white"
+            >
+              <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop grid */}
+        <motion.div
+          className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+          variants={gridContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          {benefits.map((benefit, i) => (
+            <motion.div key={i} variants={gridItemVariants}>
+              <BenefitCard {...benefit} />
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
   );
 }

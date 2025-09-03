@@ -1,8 +1,8 @@
 'use client';
 
-import { formatRupiah } from './lib/formatRupiah';
+import { formatRupiah } from '../lib/formatRupiah';
 import { motion } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
+import { Wallet, TrendingUp, CheckCircle } from 'lucide-react';
 
 const payments = [
   { title: 'Booking Fee', amount: 5_000_000 },
@@ -21,109 +21,110 @@ export default function PaymentSchedulePage() {
   const pengelolaShare = profitBersih * 0.3;
 
   return (
-    <section className="bg-[#445B47] min-h-screen py-16 px-6 text-white">
-      {/* Header */}
-      <div className="max-w-4xl mx-auto text-center mb-12">
-        <h1 className="text-3xl sm:text-4xl font-bold leading-snug">
-          💵 Skema <span className="text-yellow-300">Pembayaran</span>
-        </h1>
-        <p className="mt-4 text-lg text-white/90">
-          Rancang alur pembayaran properti Anda secara mudah dan transparan.
-        </p>
-      </div>
+    <section id="pembayaran" className="py-24 bg-slate-50" aria-labelledby="pembayaran-heading">
+      <div className="container px-6 mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center max-w-3xl mx-auto mb-16"
+        >
+          <h1 id="pembayaran-heading" className="text-4xl sm:text-5xl font-extrabold text-slate-900">
+            Skema Pembayaran<span className="text-yellow-400"> & Keuntungan</span>
+          </h1>
+          <p className="mt-4 text-lg text-slate-600">
+            Rancang alur pembayaran properti Anda secara mudah dan transparan, serta lihat potensi profit secara jelas.
+          </p>
+        </motion.div>
 
-      {/* Timeline Pembayaran */}
-      <section aria-label="Timeline Pembayaran">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {payments.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2 }}
-              className="bg-white rounded-2xl shadow-md px-6 py-5 text-[#3B4A3A] flex items-start gap-4"
-            >
-              <div className="flex-shrink-0 mt-1">
-                <CheckCircle className="w-6 h-6 text-[#7BA56E]" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start max-w-6xl mx-auto">
+          {/* Kolom Kiri: Skema Pembayaran */}
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="w-full space-y-6"
+          >
+            {payments.map((item, index) => (
+              <div 
+                key={index} 
+                className="bg-white p-6 rounded-2xl shadow-md border border-slate-200 flex items-center gap-5 hover:shadow-xl transition"
+              >
+                <div className="flex-shrink-0 w-12 h-12 bg-yellow-100 text-yellow-600 font-bold text-xl flex items-center justify-center rounded-full">
+                  {index + 1}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-slate-700">{item.title}</h3>
+                  <p className="text-2xl font-bold text-slate-900">{formatRupiah(item.amount)}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-lg">{item.title}</h3>
-                <p className="text-xl font-bold text-[#445B47]">{formatRupiah(item.amount)}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+            ))}
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-8 rounded-2xl shadow-2xl text-center">
+                <h3 className="text-xl font-bold text-yellow-400 flex items-center justify-center gap-2">
+                  <Wallet className="w-6 h-6" /> Total Harga
+                </h3>
+                <p className="mt-2 text-4xl font-extrabold">{formatRupiah(total)}</p>
+            </div>
+          </motion.div>
 
-      {/* Progress Visual */}
-      <div className="mt-12" aria-label="Progress Pembayaran">
-        <h2 className="text-xl font-semibold text-center mb-6">Visualisasi Tahapan</h2>
-        <div className="relative h-3 bg-white/30 rounded-full max-w-2xl mx-auto">
-          <div className="absolute top-0 left-0 h-3 bg-yellow-300 rounded-full w-full transition-all" />
-        </div>
-        <div className="flex justify-between max-w-2xl mx-auto mt-4 text-sm text-white/80">
-          {payments.map((item, i) => (
-            <span key={i}>{item.title}</span>
-          ))}
+          {/* Kolom Kanan: Skema Bagi Hasil */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
+            className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200 sticky top-24"
+          >
+            <h2 id="bagi-hasil-heading" className="text-3xl font-bold text-center mb-8 text-slate-900">
+              Skema <span className="text-yellow-400">Bagi Hasil Investasi</span>
+            </h2>
+            <div className="space-y-4">
+                <div className="flex justify-between items-center text-lg">
+                    <h3 className="font-semibold text-slate-700">Perkiraan Pendapatan / Bulan</h3>
+                    <p className="font-bold text-slate-800">{formatRupiah(totalPendapatan)}</p>
+                </div>
+                <div className="border-t border-slate-200 pt-4 flex justify-between items-center">
+                    <h3 className="text-slate-700">Biaya Operasional (25%)</h3>
+                    <p className="text-slate-600">
+                      <span className="font-bold text-red-500">- {formatRupiah(biayaOperasional)}</span>
+                    </p>
+                </div>
+                <div className="border-t border-slate-200 pt-4 flex justify-between items-center">
+                    <h3 className="text-slate-700">Sisa Profit Bersih</h3>
+                    <p className="font-bold text-slate-800">{formatRupiah(profitBersih)}</p>
+                </div>
+
+                {/* Bagi Hasil */}
+                <div className="border-t-2 border-dashed border-slate-300 pt-6 mt-6">
+                    <h3 className="font-semibold text-center text-lg text-slate-700 mb-6">🔄 Skema Profit Sharing</h3>
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <div className="bg-green-100 text-green-900 p-6 rounded-xl text-center shadow-sm">
+                          <p className="font-bold text-lg flex items-center justify-center gap-2">
+                            <CheckCircle className="w-5 h-5 text-green-600" /> Investor (70%)
+                          </p>
+                          <p className="text-3xl font-extrabold text-green-600 mt-2">{formatRupiah(investorShare)}</p>
+                      </div>
+                      <div className="bg-slate-100 text-slate-800 p-6 rounded-xl text-center shadow-sm">
+                          <p className="font-bold text-lg">Pengelola (30%)</p>
+                          <p className="text-2xl font-extrabold text-slate-700 mt-2">{formatRupiah(pengelolaShare)}</p>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Catatan */}
+            <div className="mt-8 bg-yellow-50 text-yellow-800 text-sm p-4 rounded-lg border border-yellow-200">
+                <p className="font-medium">📝 Catatan:</p>
+                <p className="mt-1">
+                  Angka di atas adalah estimasi berdasarkan okupansi & tarif rata-rata. 
+                  Bagi hasil ditransfer bulanan langsung ke rekening pemilik unit.
+                </p>
+            </div>
+          </motion.div>
         </div>
       </div>
-
-      {/* Total Harga */}
-      <div className="mt-16 max-w-md mx-auto bg-yellow-300 text-[#3B4A3A] rounded-2xl px-6 py-6 shadow-xl text-center">
-        <h3 className="text-xl font-bold">Total Harga</h3>
-        <p className="mt-2 text-3xl font-bold">{formatRupiah(total)}</p>
-        <p className="text-sm text-[#5D6F5A] mt-1">Termasuk seluruh tahapan pembayaran</p>
-      </div>
-
-      {/* Bagi Hasil */}
-      <section className="mt-24 max-w-4xl mx-auto text-white" aria-labelledby="bagi-hasil-heading">
-        <h2 id="bagi-hasil-heading" className="text-3xl sm:text-4xl font-bold text-center mb-8">
-          💰 Skema <span className="text-yellow-300">Bagi Hasil Investasi</span>
-        </h2>
-
-        <div className="bg-white/10 rounded-2xl px-6 py-8 space-y-4 text-white/90">
-          <div>
-            <h3 className="font-semibold text-xl">Perkiraan Pendapatan per Bulan</h3>
-            <p className="text-2xl font-bold text-yellow-300">
-              {formatRupiah(totalPendapatan)}
-            </p>
-          </div>
-
-          <div className="border-t border-white/20 pt-4">
-            <h3 className="font-semibold text-lg">Biaya Operasional (25%)</h3>
-            <p>
-              {formatRupiah(totalPendapatan)} × 25% ={' '}
-              <span className="font-bold text-white">{formatRupiah(biayaOperasional)}</span>
-            </p>
-          </div>
-
-          <div className="border-t border-white/20 pt-4">
-            <h3 className="font-semibold text-lg">Sisa Profit Bersih</h3>
-            <p>
-              {formatRupiah(totalPendapatan)} − {formatRupiah(biayaOperasional)} ={' '}
-              <span className="font-bold text-white">{formatRupiah(profitBersih)}</span>
-            </p>
-          </div>
-
-          <div className="border-t border-white/20 pt-4">
-            <h3 className="font-semibold text-lg">🔄 Skema Profit Sharing</h3>
-            <p>
-              Untuk <strong>Pemilik Unit (Investor)</strong> – 70%:{' '}
-              <span className="font-bold text-yellow-300">{formatRupiah(investorShare)}</span>
-            </p>
-            <p>
-              Untuk <strong>Pengelola</strong> – 30%:{' '}
-              <span className="font-bold text-yellow-300">{formatRupiah(pengelolaShare)}</span>
-            </p>
-          </div>
-
-          <div className="border-t border-white/20 pt-6 text-sm text-white/70 italic">
-            📝 Catatan: Angka di atas merupakan estimasi berdasarkan asumsi rata-rata okupansi dan tarif per bulan.
-            <br />
-            Bagi hasil dilakukan setiap bulan dan ditransfer langsung ke rekening pemilik unit.
-          </div>
-        </div>
-      </section>
     </section>
   );
 }

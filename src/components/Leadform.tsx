@@ -1,13 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Send, User, MapPin, Phone, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { supabase } from '@/lib/supabaseClient';
 
 const phonePattern = /^(?:\+62|0)[0-9]{9,14}$/;
 
 export const LeadForm: React.FC = () => {
   const [form, setForm] = useState({
     nama: '',
+    domisili: '',
     whatsapp: '',
     keterangan: '',
   });
@@ -24,154 +28,141 @@ export const LeadForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const nama = form.nama.trim();
-    const whatsapp = form.whatsapp.trim();
-    const keterangan = form.keterangan.trim();
-
-    if (!nama || !whatsapp) {
-      toast.error('Nama dan WhatsApp wajib diisi.');
+    if (!form.nama || !form.whatsapp || !form.domisili) {
+      toast.error('Nama Lengkap, Domisili, dan No. WhatsApp wajib diisi.');
       return;
     }
-
-    if (!phonePattern.test(whatsapp)) {
-      toast.error('Nomor WhatsApp tidak valid. Harus diawali 0 atau +62 dan berisi 10–15 digit.');
+    if (!phonePattern.test(form.whatsapp)) {
+      toast.error('Format Nomor WhatsApp tidak valid.');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nama, whatsapp, keterangan }),
-      });
+      const { error } = await supabase
+        .from('leads')
+        .insert({
+          nama: form.nama.trim(),
+          domisili: form.domisili.trim(),
+          whatsapp: form.whatsapp.trim(),
+          keterangan: form.keterangan.trim(),
+        });
 
-      const result = await response.json();
+      if (error) throw new Error(error.message);
 
-      if (result.success) {
-        toast.success('✅ Data berhasil dikirim.');
-        setForm({ nama: '', whatsapp: '', keterangan: '' });
-      } else {
-        toast.error('❌ Gagal mengirim data. Silakan coba lagi.');
-      }
+      toast.success('✅ Data berhasil dikirim! Tim kami akan segera menghubungi Anda.');
+
+      // Reset form
+      setForm({ nama: '', domisili: '', whatsapp: '', keterangan: '' });
+
     } catch (error) {
-      console.error('Error saat submit:', error);
-      toast.error('⚠️ Terjadi kesalahan pada server.');
+      console.error('Error saat submit ke Supabase:', error);
+      toast.error('❌ Gagal mengirim data. Silakan coba lagi nanti.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <section id="booking" className="relative bg-white text-[#3B4A3A] py-20 sm:py-24 overflow-hidden">
-      <div className="container px-4 max-w-2xl mx-auto relative z-10">
-        <h2 className="text-4xl sm:text-5xl text-center font-bold tracking-tight mb-4 text-[#4A6B45] drop-shadow-md">
+    <div className="container mx-auto px-4">
+      <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200 max-w-lg mx-auto p-8">
+        <h2 className="text-3xl font-bold text-slate-900 text-center">
           Tertarik Berinvestasi?
         </h2>
-        <p className="text-center text-[#5D6E5A] mb-12 text-lg sm:text-xl leading-relaxed font-light">
+        <p className="mt-2 text-slate-600 mb-8 text-center">
           Isi formulir di bawah ini untuk konsultasi gratis atau dapatkan simulasi ROI dari{' '}
-          <strong className="text-[#4A6B45]">Villa Lodji Svarga 2</strong>.
+          <strong className="text-yellow-600">Villa Lodjisvarga Seturan</strong>.
         </p>
 
-        <form
-          onSubmit={handleSubmit}
-          noValidate
-          className="bg-[#F4F7F1] p-6 sm:p-8 rounded-3xl shadow-2xl border border-[#C2CCB1] space-y-6"
-        >
-          {/* Nama */}
-          <div>
-            <label htmlFor="nama" className="block font-medium mb-2 text-[#4A6B45]">
-              Nama Lengkap
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          {/* Input Nama */}
+          <div className="relative">
+            <label htmlFor="nama" className="block text-sm font-semibold text-slate-700 mb-1">
+              Nama
             </label>
+            <User className="absolute left-3 top-10 w-5 h-5 text-slate-400" />
             <input
-              type="text"
               id="nama"
+              type="text"
               name="nama"
               value={form.nama}
               onChange={handleChange}
-              placeholder="Contoh: Andi Saputra"
-              className="w-full px-4 py-3 border border-[#B1C29E] rounded-lg focus:ring-2 focus:ring-[#8FA87A] bg-white text-[#3B4A3A] shadow-sm"
-              autoComplete="name"
+              placeholder="Contoh: Budi"
+              aria-label="Nama"
+              className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-yellow-500 transition"
               required
             />
           </div>
 
-          {/* WhatsApp */}
-          <div>
-            <label htmlFor="whatsapp" className="block font-medium mb-2 text-[#4A6B45]">
-              No WhatsApp Aktif
+          {/* Input Domisili */}
+          <div className="relative">
+            <label htmlFor="domisili" className="block text-sm font-semibold text-slate-700 mb-1">
+              Domisili
             </label>
+            <MapPin className="absolute left-3 top-10 w-5 h-5 text-slate-400" />
             <input
-              type="tel"
+              id="domisili"
+              type="text"
+              name="domisili"
+              value={form.domisili}
+              onChange={handleChange}
+              placeholder="Contoh: Jakarta"
+              aria-label="Domisili"
+              className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-yellow-500 transition"
+              required
+            />
+          </div>
+
+          {/* Input WhatsApp */}
+          <div className="relative">
+            <label htmlFor="whatsapp" className="block text-sm font-semibold text-slate-700 mb-1">
+              No. WhatsApp Aktif
+            </label>
+            <Phone className="absolute left-3 top-10 w-5 h-5 text-slate-400" />
+            <input
               id="whatsapp"
+              type="tel"
               name="whatsapp"
               value={form.whatsapp}
               onChange={handleChange}
-              placeholder="081234567890 atau +6281234567890"
-              className="w-full px-4 py-3 border border-[#B1C29E] rounded-lg focus:ring-2 focus:ring-[#8FA87A] bg-white text-[#3B4A3A] shadow-sm"
-              pattern="^(?:\+62|0)[0-9]{9,14}$"
-              title="Nomor WhatsApp harus diawali 0 atau +62 dan terdiri dari 10–15 digit angka."
-              autoComplete="tel"
+              placeholder="08xx / 628xx"
+              aria-label="Nomor WhatsApp"
+              className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-yellow-500 transition"
               required
             />
           </div>
 
-          {/* Keterangan */}
-          <div>
-            <label htmlFor="keterangan" className="block font-medium mb-2 text-[#4A6B45]">
-              Keterangan Tambahan
+          {/* Input Keterangan */}
+          <div className="relative">
+            <label htmlFor="keterangan" className="block text-sm font-semibold text-slate-700 mb-1">
+              Keterangan Tambahan (Opsional)
             </label>
+            <MessageSquare className="absolute left-3 top-10 w-5 h-5 text-slate-400" />
             <textarea
               id="keterangan"
               name="keterangan"
               value={form.keterangan}
               onChange={handleChange}
-              rows={4}
+              rows={3}
               placeholder="Contoh: Saya ingin info lebih lanjut tentang ROI dan legalitas."
-              className="w-full px-4 py-3 border border-[#B1C29E] rounded-lg focus:ring-2 focus:ring-[#8FA87A] bg-white text-[#3B4A3A] shadow-sm"
+              aria-label="Keterangan tambahan"
+              className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-yellow-500 transition"
             />
           </div>
 
-          {/* Submit Button */}
-          <button
+          {/* Tombol Submit */}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             type="submit"
             disabled={isSubmitting}
-            aria-busy={isSubmitting}
-            className={`w-full bg-[#4A6B45] hover:bg-[#3d583d] text-white font-semibold py-3 rounded-lg shadow-md transition duration-300 flex justify-center items-center ${
-              isSubmitting ? 'opacity-60 cursor-not-allowed' : ''
-            }`}
+            className="w-full inline-flex items-center justify-center gap-2 bg-yellow-500 text-slate-900 font-bold px-8 py-4 rounded-lg shadow-lg hover:bg-yellow-400 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? (
-              <>
-                <svg
-                  className="animate-spin h-5 w-5 mr-2 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  />
-                </svg>
-                Mengirim...
-              </>
-            ) : (
-              'Kirim Sekarang'
-            )}
-          </button>
+            <Send className="w-5 h-5" />
+            {isSubmitting ? 'Mengirim...' : 'Kirim Sekarang'}
+          </motion.button>
         </form>
       </div>
-    </section>
+    </div>
   );
 };

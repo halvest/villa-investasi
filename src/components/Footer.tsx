@@ -9,16 +9,25 @@ export const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-green-900 text-white/70 border-t border-white/25 py-10">
-      <div className="container mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+    <footer className="relative z-40 bg-[#0D1324] border-t border-white/10 mt-20">
+      {/* Gradient Divider */}
+      <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+      <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
         {/* Left Text */}
-        <div className="text-sm text-center sm:text-left select-none text-white/60">
-          © {currentYear} Haspro Agency. All rights reserved.
+        <div className="text-center md:text-left">
+          <p className="text-sm text-white/70">
+            © {currentYear}{' '}
+            <span className="font-semibold text-white">Haspro Agency</span>. All rights reserved.
+          </p>
+          <p className="text-xs text-white/50 mt-1">
+            Empowering property investment with trust & transparency.
+          </p>
         </div>
 
         {/* Social Media Icons */}
         <nav>
-          <ul className="flex gap-6 items-center justify-center">
+          <ul className="flex gap-4 items-center justify-center">
             {/* Instagram */}
             <li>
               <a
@@ -26,9 +35,15 @@ export const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="hover:opacity-80 transition-opacity duration-300"
+                className="group p-2 rounded-full hover:bg-white/10 transition"
               >
-                <Image src={InstaIcon} alt="Instagram" width={24} height={24} />
+                <Image
+                  src={InstaIcon}
+                  alt="Instagram"
+                  width={26}
+                  height={26}
+                  className="opacity-80 transition-transform duration-300 group-hover:scale-110 group-hover:opacity-100"
+                />
               </a>
             </li>
 
@@ -39,9 +54,15 @@ export const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
-                className="hover:opacity-80 transition-opacity duration-300"
+                className="group p-2 rounded-full hover:bg-white/10 transition"
               >
-                <Image src={TiktokIcon} alt="TikTok" width={24} height={24} />
+                <Image
+                  src={TiktokIcon}
+                  alt="TikTok"
+                  width={26}
+                  height={26}
+                  className="opacity-80 transition-transform duration-300 group-hover:scale-110 group-hover:opacity-100"
+                />
               </a>
             </li>
 
@@ -52,9 +73,15 @@ export const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="hover:opacity-80 transition-opacity duration-300"
+                className="group p-2 rounded-full hover:bg-white/10 transition"
               >
-                <Image src={FacebookIcon} alt="Facebook" width={24} height={24} />
+                <Image
+                  src={FacebookIcon}
+                  alt="Facebook"
+                  width={26}
+                  height={26}
+                  className="opacity-80 transition-transform duration-300 group-hover:scale-110 group-hover:opacity-100"
+                />
               </a>
             </li>
           </ul>
