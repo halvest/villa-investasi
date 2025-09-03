@@ -67,7 +67,7 @@ export const Navbar = () => {
             FAQ
           </a>
           <a
-            href="#booking"
+            href="https://wa.me/6283144940611?text=Halo%20saya%20ingin%20tanya-tanya%20tentang%20Villa%20Lodji%20Svarga%202&utm_source=landingpage&utm_medium=chat_button&utm_campaign=info_request"
             className="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full transition-all duration-300 ease-in-out shadow-md"
           >
             Booking Sekarang
@@ -112,7 +112,8 @@ export const Navbar = () => {
             FAQ
           </a>
           <a
-            href="#booking"
+            href="https://wa.me/6283144940611?text=Halo%20saya%20ingin%20tanya-tanya%20tentang%20Villa%20Lodji%20Svarga%202&utm_source=landingpage&utm_medium=chat_button&utm_campaign=info_request"
+
             className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full text-center transition-all duration-300 ease-in-out shadow-md"
           >
             Booking Sekarang

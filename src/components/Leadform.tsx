@@ -51,7 +51,7 @@ export const LeadForm: React.FC = () => {
 
       if (error) throw new Error(error.message);
 
-      toast.success('✅ Data berhasil dikirim! Tim kami akan segera menghubungi Anda.');
+      toast.success('Data berhasil dikirim! Tim kami akan segera menghubungi Anda.');
 
       // Reset form
       setForm({ nama: '', domisili: '', whatsapp: '', keterangan: '' });
