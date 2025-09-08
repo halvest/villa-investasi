@@ -7,7 +7,7 @@ export default function WhatsAppButton() {
   const [open, setOpen] = useState(false);
 
   const handleClick = () => {
-    window.open("https://wa.me/6281234567890", "_blank"); // ganti nomor WA
+    window.open("https://wa.me/6283144940611", "_blank"); // ganti nomor WA
   };
 
   return (
