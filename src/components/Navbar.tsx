@@ -17,6 +17,17 @@ export const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Fungsi khusus untuk handle klik booking + tracking
+  const handleBookingClick = () => {
+    // Tracking Pixel
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq("track", "Contact", {
+        content_name: "Navbar Booking Button",
+        status: "clicked",
+      });
+    }
+  };
+
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-500 ease-in-out ${
@@ -66,8 +77,11 @@ export const Navbar = () => {
           <a href="#faq" className="hover:text-amber-500 transition-colors">
             FAQ
           </a>
+          {/* Tombol Booking dengan Tracking */}
           <a
-            href="https://wa.me/6283144940611?text=Halo%20saya%20ingin%20tanya-tanya%20tentang%20Villa%20Lodji%20Svarga%202&utm_source=landingpage&utm_medium=chat_button&utm_campaign=info_request"
+            href="https://wa.me/6289509888404?text=Halo%20saya%20ingin%20tanya-tanya%20tentang%20Villa%20Lodji%20Svarga%202&utm_source=landingpage&utm_medium=chat_button&utm_campaign=info_request"
+            target="_blank"
+            onClick={handleBookingClick} // Tambahkan ini
             className="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full transition-all duration-300 ease-in-out shadow-md"
           >
             Booking Sekarang
@@ -111,9 +125,11 @@ export const Navbar = () => {
           <a href="#faq" className="hover:text-amber-500 transition-colors">
             FAQ
           </a>
+          {/* Tombol Booking Mobile dengan Tracking */}
           <a
             href="https://wa.me/6283144940611?text=Halo%20saya%20ingin%20tanya-tanya%20tentang%20Villa%20Lodji%20Svarga%202&utm_source=landingpage&utm_medium=chat_button&utm_campaign=info_request"
-
+            target="_blank"
+            onClick={handleBookingClick} // Tambahkan ini
             className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full text-center transition-all duration-300 ease-in-out shadow-md"
           >
             Booking Sekarang

@@ -5,6 +5,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
 
 // Load Google Font
 const dmSans = DM_Sans({ subsets: ["latin"], display: "swap" });
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
     "villa siap huni jogja",
     "villa syariah jogja",
     "peluang investasi properti jogja",
-    ],
+  ],
   openGraph: {
     title: "Villa Lodji Svarga 2 | Investasi Properti Yogyakarta",
     description:
@@ -66,7 +67,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Villa Lodjisvarga Seturan Yogyakarta - Investasi Properti Strategis",
+    title:
+      "Villa Lodjisvarga Seturan Yogyakarta - Investasi Properti Strategis",
     description:
       "Villa eksklusif dengan ROI cepat & passive income hingga Rp6 juta/bulan. Harga mulai Rp375 juta.",
     images: ["https://www.haspro.me/og.jpg"],
@@ -77,12 +79,13 @@ export const metadata: Metadata = {
   },
 };
 
-// Root Layout
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const PIXEL_ID = "1555185445824332";
+
   return (
     <html lang="id">
       <head>
@@ -97,10 +100,42 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className={clsx(dmSans.className, "antialiased")}>
+        {/* Meta Pixel Script */}
+        <Script
+          id="fb-pixel"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              !function(f,b,e,v,n,t,s)
+              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+              n.queue=[];t=b.createElement(e);t.async=!0;
+              t.src=v;s=b.getElementsByTagName(e)[0];
+              s.parentNode.insertBefore(t,s)}(window, document,'script',
+              'https://connect.facebook.net/en_US/fbevents.js');
+              fbq('init', '${PIXEL_ID}');
+              fbq('track', 'PageView');
+            `,
+          }}
+        />
+
         {children}
         <Analytics />
         <Toaster position="top-center" reverseOrder={false} />
         <WhatsAppButton />
+
+        {/* Noscript Fallback */}
+        <noscript>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`}
+            alt="Meta Pixel"
+          />
+        </noscript>
       </body>
     </html>
   );

@@ -1,18 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Star, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Star, Tag, ChevronLeft, ChevronRight } from "lucide-react";
 
-import VillaExterior from '../assets/images/9.jpg';
-import LivingRoom from '../assets/images/living-room.jpg';
-import Bedroom from '../assets/images/bedroom.jpg';
+import VillaExterior from "../assets/images/fasad-villa.jpg";
+import LivingRoom from "../assets/images/fasadvilla.jpg";
+import Bedroom from "../assets/images/private-pool-villa.jpg";
 
 const images = [
-  { src: VillaExterior, alt: 'Tampak eksterior Villa Lodji Svarga 2 yang elegan dan mewah di Yogyakarta' },
-  { src: LivingRoom, alt: 'Ruang tamu modern dan nyaman di Villa Lodji Svarga 2 sebagai investasi properti' },
-  { src: Bedroom, alt: 'Kamar tidur mewah dengan furniture lengkap, siap untuk disewakan' },
+  {
+    src: VillaExterior,
+    alt: "Tampak eksterior Villa Lodji Svarga 2 yang elegan dan mewah di Yogyakarta",
+  },
+  {
+    src: LivingRoom,
+    alt: "Ruang tamu modern dan nyaman di Villa Lodji Svarga 2 sebagai investasi properti",
+  },
+  {
+    src: Bedroom,
+    alt: "Kamar tidur mewah dengan furniture lengkap, siap untuk disewakan",
+  },
 ];
 
 const containerVariants = {
@@ -25,14 +34,16 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
 export const Hero = () => {
   const [currentImage, setCurrentImage] = useState(0);
 
-  const nextImage = () => setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  const prevImage = () => setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  const nextImage = () =>
+    setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  const prevImage = () =>
+    setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1));
 
   useEffect(() => {
     const timer = setInterval(nextImage, 8000);
@@ -40,7 +51,10 @@ export const Hero = () => {
   }, []);
 
   return (
-    <header id="hero" className="relative w-full h-screen overflow-hidden bg-gray-950">
+    <header
+      id="hero"
+      className="relative w-full h-screen overflow-hidden bg-gray-950"
+    >
       {/* Background slider */}
       <AnimatePresence initial={false}>
         <motion.div
@@ -48,7 +62,7 @@ export const Hero = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1, ease: 'easeInOut' }}
+          transition={{ duration: 1, ease: "easeInOut" }}
           className="absolute inset-0 z-0"
         >
           <Image
@@ -56,7 +70,7 @@ export const Hero = () => {
             alt={images[currentImage].alt}
             fill
             priority={currentImage === 0}
-            loading={currentImage === 0 ? 'eager' : 'lazy'}
+            loading={currentImage === 0 ? "eager" : "lazy"}
             className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
@@ -72,7 +86,10 @@ export const Hero = () => {
             animate="visible"
             className="max-w-xl rounded-2xl border border-white/10 bg-black/40 p-6 text-center shadow-2xl backdrop-blur-md md:p-8 lg:text-left"
           >
-            <motion.div variants={itemVariants} className="flex justify-center lg:justify-start">
+            <motion.div
+              variants={itemVariants}
+              className="flex justify-center lg:justify-start"
+            >
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-xs sm:text-sm font-semibold text-amber-300">
                 <Tag className="h-4 w-4" />
                 <span>Investasi Properti</span>
@@ -87,10 +104,13 @@ export const Hero = () => {
               <span className="text-amber-400">Juga Passive Income.</span>
             </motion.h1>
 
-            <motion.p variants={itemVariants} className="mt-5 text-sm text-gray-300 sm:text-base md:text-lg">
-              Investasi cerdas di jantung pariwisata Yogyakarta. Mulai dari{' '}
-              <strong className="font-semibold text-white">Rp375 Juta</strong>, dapatkan jaminan BEP 5 tahun
-              dengan legalitas notaris resmi.
+            <motion.p
+              variants={itemVariants}
+              className="mt-5 text-sm text-gray-300 sm:text-base md:text-lg"
+            >
+              Investasi cerdas di jantung pariwisata Yogyakarta. Mulai dari{" "}
+              <strong className="font-semibold text-white">Rp375 Juta</strong>,
+              dapatkan jaminan BEP 5 tahun dengan legalitas notaris resmi.
             </motion.p>
 
             <motion.div
@@ -108,10 +128,15 @@ export const Hero = () => {
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="flex text-amber-400">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 sm:h-5 sm:w-5 fill-current" />
+                    <Star
+                      key={i}
+                      className="h-4 w-4 sm:h-5 sm:w-5 fill-current"
+                    />
                   ))}
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-gray-400">(5.0) Dipercaya 50+ Investor</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-400">
+                  (5.0) Dipercaya 50+ Investor
+                </span>
               </div>
             </motion.div>
           </motion.div>
@@ -134,7 +159,9 @@ export const Hero = () => {
               onClick={() => setCurrentImage(index)}
               aria-label={`Lihat gambar ${index + 1}`}
               className={`h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full transition-all duration-300 ${
-                currentImage === index ? 'w-4 bg-white' : 'bg-white/50 hover:bg-white/80'
+                currentImage === index
+                  ? "w-4 bg-white"
+                  : "bg-white/50 hover:bg-white/80"
               }`}
             />
           ))}
