@@ -84,7 +84,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const PIXEL_ID = "1555185445824332";
+  const PIXEL_ID = "1555185445824332"; // Sesuai instruksi Meta kamu
 
   return (
     <html lang="id">
@@ -100,7 +100,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className={clsx(dmSans.className, "antialiased")}>
-        {/* Meta Pixel Script */}
+        {/* --- META PIXEL SCRIPT (Sesuai Instruksi) --- */}
         <Script
           id="fb-pixel"
           strategy="afterInteractive"
@@ -125,7 +125,7 @@ export default function RootLayout({
         <Toaster position="top-center" reverseOrder={false} />
         <WhatsAppButton />
 
-        {/* Noscript Fallback */}
+        {/* --- NOSCRIPT FALLBACK (Sesuai Instruksi) --- */}
         <noscript>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
