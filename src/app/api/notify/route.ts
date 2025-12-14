@@ -16,9 +16,25 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { nama, whatsapp, domisili, keterangan } = body;
+    const { nama, whatsapp, domisili, keterangan, jadwal } = body;
 
-    // Format Pesan
+    // --- Format Jadwal jika ada ---
+    let jadwalString = "-";
+    if (jadwal) {
+      try {
+        const dateObj = new Date(jadwal);
+        jadwalString = dateObj.toLocaleDateString("id-ID", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      } catch (e) {
+        jadwalString = jadwal; // Fallback jika error format
+      }
+    }
+
+    // --- Format Pesan Telegram ---
     const message = `
 🔔 *LEADS BARU MASUK!*
 
@@ -27,6 +43,8 @@ export async function POST(request: Request) {
       .replace(/^0/, "62")
       .replace(/\+/g, "")})
 📍 *Domisili:* ${domisili}
+📅 *Jadwal Cek Lokasi:* ${jadwalString}
+
 📝 *Pesan:* ${keterangan || "-"}
 
 _Segera follow up via Dashboard Admin!_
@@ -41,7 +59,7 @@ _Segera follow up via Dashboard Admin!_
       body: JSON.stringify({
         chat_id: chatId,
         text: message,
-        parse_mode: "Markdown",
+        parse_mode: "Markdown", // Menggunakan Markdown untuk bold/link
       }),
     });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -42,11 +42,11 @@ export const LeadForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
-  const [isDateFocused, setIsDateFocused] = useState(false);
-
   const [timeLeft, setTimeLeft] = useState(30 * 60);
 
-  // Timer Logic
+  // REF untuk input tanggal agar bisa dipicu manual
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isOpen && timeLeft > 0) {
@@ -57,7 +57,6 @@ export const LeadForm: React.FC = () => {
     return () => clearInterval(interval);
   }, [isOpen, timeLeft]);
 
-  // Auto Open Logic
   useEffect(() => {
     const timer = setTimeout(() => {
       const alreadyClosed = sessionStorage.getItem("lead_popup_closed");
@@ -97,7 +96,7 @@ export const LeadForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // LOGIKA BARU: Gabungkan Jadwal ke Keterangan karena kolom jadwal tidak ada di DB
+      // 1. Logic Database (Gabung jadwal ke keterangan karena kolom jadwal tidak ada)
       let finalKeterangan = form.keterangan.trim();
       if (form.jadwal) {
         const tgl = new Date(form.jadwal).toLocaleDateString("id-ID", {
@@ -106,15 +105,14 @@ export const LeadForm: React.FC = () => {
           month: "long",
           day: "numeric",
         });
-        // Tambahkan info jadwal di awal pesan
         finalKeterangan = `[Rencana Cek Lokasi: ${tgl}] \n${finalKeterangan}`;
       }
 
-      // Insert sesuai skema public.leads yang baru
+      // Insert Supabase
       const { error } = await supabase.from("leads").insert({
         nama: form.nama.trim(),
         domisili: form.domisili.trim(),
-        whatsapp: form.whatsapp.trim(), // Sesuai kolom database
+        whatsapp: form.whatsapp.trim(),
         keterangan: finalKeterangan,
         source: "Promo Popup 15jt (30 Mins)",
         status: "Baru",
@@ -122,6 +120,17 @@ export const LeadForm: React.FC = () => {
 
       if (error) throw new Error(error.message);
 
+      // 2. Kirim Notifikasi Telegram (Kirim form asli agar API bisa format tanggalnya)
+      fetch("/api/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          jadwal: form.jadwal, // Pastikan jadwal terkirim terpisah ke API
+        }),
+      }).catch((err) => console.error("Gagal notif telegram:", err));
+
+      // 3. Pixel Tracking
       if (typeof window !== "undefined" && (window as any).fbq) {
         (window as any).fbq("track", "Lead", {
           content_name: "Promo Villa 375jt",
@@ -151,7 +160,7 @@ export const LeadForm: React.FC = () => {
 
   return (
     <>
-      {/* === TRIGGER BUTTON (Floating) === */}
+      {/* Floating Button */}
       <motion.button
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -175,7 +184,7 @@ export const LeadForm: React.FC = () => {
         </span>
       </motion.button>
 
-      {/* === MODAL POPUP === */}
+      {/* Modal Popup */}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4">
@@ -212,8 +221,9 @@ export const LeadForm: React.FC = () => {
                       <p className="text-xs text-slate-300 mt-1 max-w-[90%]">
                         Anda terpilih mendapatkan{" "}
                         <span className="text-amber-400 font-semibold">
-                          DISKON HARGA!
+                          DISKON HARGA
                         </span>
+                        . Isi form sekarang untuk mengamankan diskon harga!.
                       </p>
                     </div>
                     <button
@@ -258,7 +268,7 @@ export const LeadForm: React.FC = () => {
                       value={form.nama}
                       onChange={handleChange}
                       placeholder="Nama Lengkap"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition text-sm text-slate-800 shadow-sm placeholder:text-slate-400"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm"
                       required
                     />
                   </div>
@@ -272,7 +282,7 @@ export const LeadForm: React.FC = () => {
                         value={form.whatsapp}
                         onChange={handleChange}
                         placeholder="WhatsApp (08xx)"
-                        className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition text-sm text-slate-800 shadow-sm placeholder:text-slate-400"
+                        className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm"
                         required
                       />
                     </div>
@@ -284,24 +294,34 @@ export const LeadForm: React.FC = () => {
                         value={form.domisili}
                         onChange={handleChange}
                         placeholder="Domisili"
-                        className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition text-sm text-slate-800 shadow-sm placeholder:text-slate-400"
+                        className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm"
                       />
                     </div>
                   </div>
 
+                  {/* FIX: Input Tanggal dengan onClick showPicker() */}
                   <div className="relative group">
-                    <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                    <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors z-10 pointer-events-none" />
                     <input
-                      type={form.jadwal || isDateFocused ? "date" : "text"}
+                      ref={dateInputRef}
+                      type="date"
                       name="jadwal"
                       min={today}
                       value={form.jadwal}
                       onChange={handleChange}
-                      onFocus={() => setIsDateFocused(true)}
-                      onBlur={() => setIsDateFocused(false)}
-                      placeholder="Rencana Cek Lokasi (Opsional)"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition text-sm text-slate-800 shadow-sm placeholder:text-slate-400 w-full"
+                      onClick={() => dateInputRef.current?.showPicker()} // TRIGGER PICKER SAAT DIKLIK
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm cursor-pointer relative"
+                      style={{ colorScheme: "light" }} // Memastikan icon bawaan browser terlihat bagus
                     />
+                    {/* Placeholder buatan jika kosong (karena input date defaultnya dd/mm/yyyy) */}
+                    {!form.jadwal && (
+                      <span
+                        onClick={() => dateInputRef.current?.showPicker()}
+                        className="absolute left-10 top-3.5 text-sm text-slate-400 pointer-events-none bg-white pr-2"
+                      >
+                        Rencana Cek Lokasi
+                      </span>
+                    )}
                   </div>
 
                   <div className="relative group">
@@ -312,7 +332,7 @@ export const LeadForm: React.FC = () => {
                       value={form.keterangan}
                       onChange={handleChange}
                       placeholder="Ada pertanyaan khusus?"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition text-sm text-slate-800 shadow-sm resize-none placeholder:text-slate-400"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm resize-none"
                     />
                   </div>
 
