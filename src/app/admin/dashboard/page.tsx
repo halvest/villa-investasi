@@ -16,21 +16,26 @@ import {
   Users,
   CheckCircle,
   Clock,
+  MessageSquare,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
+// Interface disesuaikan dengan DB: public.leads
 interface Lead {
-  id: number;
+  id: string;
   created_at: string;
   nama: string;
   domisili: string;
-  whatsapp: string;
-  keterangan: string;
+  no_wa?: string; // Ubah jadi optional untuk menghindari crash jika undefined
+  whatsapp?: string; // Tambahkan fallback untuk data lama
+  jadwal_cek_lokasi?: string | null;
   status: string;
-  source: string;
-  admin_notes: string;
+  keterangan?: string;
+  source?: string;
+  admin_notes?: string;
 }
 
+// Konfigurasi Warna Status
 const STATUS_CONFIG: Record<
   string,
   { label: string; color: string; bg: string }
@@ -73,6 +78,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+
+  // State Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [editForm, setEditForm] = useState({ status: "", admin_notes: "" });
@@ -83,6 +90,7 @@ export default function DashboardPage() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
       if (!session) {
         router.replace("/admin/login");
         return;
@@ -99,50 +107,67 @@ export default function DashboardPage() {
         .from("leads")
         .select("*")
         .order("created_at", { ascending: false });
+
       if (error) throw error;
       setLeads(data || []);
     } catch (error: any) {
-      toast.error("Gagal memuat data.");
+      console.error("Fetch Error:", error);
+      toast.error("Gagal memuat data leads.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Helper aman untuk ambil nomor HP (mendukung 'no_wa' atau 'whatsapp')
+  const getPhone = (lead: Lead) => lead.no_wa || lead.whatsapp || "";
+
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
+      const phone = getPhone(lead);
       const matchSearch =
         lead.nama?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.whatsapp?.includes(searchTerm);
+        phone.includes(searchTerm) ||
+        lead.domisili?.toLowerCase().includes(searchTerm.toLowerCase());
+
       const matchStatus =
         statusFilter === "All" || lead.status === statusFilter;
+
       return matchSearch && matchStatus;
     });
   }, [leads, searchTerm, statusFilter]);
 
   const handleExportCSV = () => {
     const headers = [
-      "Tanggal",
+      "Tanggal Masuk",
       "Nama",
       "Domisili",
       "WhatsApp",
+      "Rencana Cek Lokasi",
       "Status",
       "Catatan Admin",
       "Pesan User",
     ];
+
     const csvContent = [
       headers.join(","),
       ...filteredLeads.map((lead) =>
         [
-          `"${new Date(lead.created_at).toLocaleDateString()}"`,
+          `"${new Date(lead.created_at).toLocaleDateString("id-ID")}"`,
           `"${lead.nama}"`,
           `"${lead.domisili}"`,
-          `'${lead.whatsapp}`,
+          `'${getPhone(lead)}`, // Gunakan helper
+          `"${
+            lead.jadwal_cek_lokasi
+              ? new Date(lead.jadwal_cek_lokasi).toLocaleDateString("id-ID")
+              : "-"
+          }"`,
           `"${lead.status}"`,
           `"${lead.admin_notes || ""}"`,
           `"${lead.keterangan || ""}"`,
         ].join(",")
       ),
     ].join("\n");
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -165,14 +190,20 @@ export default function DashboardPage() {
     try {
       const { error } = await supabase
         .from("leads")
-        .update({ status: editForm.status, admin_notes: editForm.admin_notes })
+        .update({
+          status: editForm.status,
+          admin_notes: editForm.admin_notes,
+        })
         .eq("id", selectedLead.id);
+
       if (error) throw error;
-      toast.success("Data diperbarui!");
+
+      toast.success("Data berhasil diperbarui!");
       setIsModalOpen(false);
       fetchLeads();
     } catch (error: any) {
-      toast.error(error.message);
+      console.error("Update Error:", error);
+      toast.error("Gagal update: " + error.message);
     } finally {
       setSaving(false);
     }
@@ -182,7 +213,7 @@ export default function DashboardPage() {
     const config = STATUS_CONFIG[status] || STATUS_CONFIG["Baru"];
     return (
       <span
-        className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border ${config.bg}`}
+        className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] md:text-xs font-semibold border ${config.bg}`}
       >
         {config.label}
       </span>
@@ -191,25 +222,27 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <Users className="text-amber-500" /> Manajemen Leads
           </h1>
           <p className="text-slate-500 text-sm mt-1">
-            Kelola data prospek, update status, dan follow-up.
+            Monitoring data calon pembeli villa secara realtime.
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
           <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
             <Users size={24} />
           </div>
           <div>
             <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">
-              Total Leads
+              Total Masuk
             </p>
             <p className="text-2xl font-extrabold text-slate-900">
               {leads.length}
@@ -218,16 +251,16 @@ export default function DashboardPage() {
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
           <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
-            <Clock size={24} />
+            <Calendar size={24} />
           </div>
           <div>
             <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">
-              Potensi (Hot)
+              Jadwal Survei
             </p>
             <p className="text-2xl font-extrabold text-slate-900">
               {
                 leads.filter(
-                  (l) => l.status === "Prospek" || l.status === "Survei"
+                  (l) => l.jadwal_cek_lokasi !== null || l.status === "Survei"
                 ).length
               }
             </p>
@@ -239,7 +272,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">
-              Total Closing
+              Closing
             </p>
             <p className="text-2xl font-extrabold text-slate-900">
               {leads.filter((l) => l.status === "Closing").length}
@@ -248,13 +281,14 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Filters & Actions */}
       <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm sticky top-0 z-20">
         <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3 flex-1">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Cari nama / WhatsApp..."
+              placeholder="Cari nama / No WA..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none text-sm transition"
@@ -278,17 +312,18 @@ export default function DashboardPage() {
             </select>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-900 transition shadow-md"
+            className="flex flex-1 sm:flex-none justify-center items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-lg hover:bg-slate-900 transition shadow-md"
           >
             <Download className="w-4 h-4" />{" "}
-            <span className="hidden sm:inline">Export CSV</span>
+            <span className="">Export CSV</span>
           </button>
         </div>
       </div>
 
+      {/* Content */}
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -300,64 +335,86 @@ export default function DashboardPage() {
         </div>
       ) : filteredLeads.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
-          <p className="text-slate-400">Tidak ada data ditemukan.</p>
+          <Users className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+          <p className="text-slate-500 font-medium">
+            Tidak ada data ditemukan.
+          </p>
+          <p className="text-slate-400 text-sm">
+            Coba ubah filter pencarian Anda.
+          </p>
         </div>
       ) : (
         <>
+          {/* Mobile View (Card List) */}
           <div className="grid grid-cols-1 gap-4 md:hidden">
-            {filteredLeads.map((lead) => (
-              <div
-                key={lead.id}
-                className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 active:scale-[0.99] transition-transform"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h4 className="font-bold text-slate-900">{lead.nama}</h4>
-                    <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(lead.created_at).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+            {filteredLeads.map((lead) => {
+              const phone = getPhone(lead);
+              return (
+                <div
+                  key={lead.id}
+                  className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 active:scale-[0.99] transition-transform"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h4 className="font-bold text-slate-900">{lead.nama}</h4>
+                      <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
+                        <Clock className="w-3 h-3" />
+                        {new Date(lead.created_at).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
                     </div>
+                    <StatusBadge status={lead.status} />
                   </div>
-                  <StatusBadge status={lead.status} />
-                </div>
-                <div className="space-y-2 text-sm text-slate-600 mb-4">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-slate-400" />{" "}
-                    {lead.domisili}
+
+                  <div className="space-y-2 text-sm text-slate-600 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-slate-400" />{" "}
+                      {lead.domisili}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-slate-400" />
+                      <a
+                        href={`https://wa.me/${(phone || "")
+                          .replace(/^0/, "62")
+                          .replace(/\+/g, "")}`}
+                        target="_blank"
+                        className="text-green-600 font-medium hover:underline"
+                      >
+                        {phone || "-"}
+                      </a>
+                    </div>
+                    {lead.jadwal_cek_lokasi && (
+                      <div className="flex items-center gap-2 text-amber-600 font-medium">
+                        <Calendar className="w-4 h-4" />
+                        Cek Lokasi:{" "}
+                        {new Date(lead.jadwal_cek_lokasi).toLocaleDateString(
+                          "id-ID"
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-slate-400" />
-                    <a
-                      href={`https://wa.me/${lead.whatsapp
-                        .replace(/^0/, "62")
-                        .replace(/\+/g, "")}`}
-                      target="_blank"
-                      className="text-green-600 font-medium hover:underline"
+
+                  <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
+                    <span className="text-xs text-slate-400 italic max-w-[60%] truncate">
+                      {lead.admin_notes || "Belum ada catatan"}
+                    </span>
+                    <button
+                      onClick={() => openEditModal(lead)}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-md hover:bg-slate-900 transition shadow-md"
                     >
-                      {lead.whatsapp}
-                    </a>
+                      <Edit3 className="w-3 h-3" /> Kelola
+                    </button>
                   </div>
                 </div>
-                <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
-                  <span className="text-xs text-slate-400 italic max-w-[60%] truncate">
-                    {lead.admin_notes || "Belum ada catatan"}
-                  </span>
-                  <button
-                    onClick={() => openEditModal(lead)}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-md transition"
-                  >
-                    <Edit3 className="w-3 h-3" /> Kelola
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
+          {/* Desktop View (Table) */}
           <div className="hidden md:block bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <table className="w-full text-left">
               <thead className="bg-slate-50 border-b border-slate-200">
@@ -366,7 +423,10 @@ export default function DashboardPage() {
                     Tanggal
                   </th>
                   <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">
-                    Nama User
+                    User Info
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">
+                    Jadwal Cek Lokasi
                   </th>
                   <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">
                     Status
@@ -380,78 +440,103 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredLeads.map((lead) => (
-                  <tr
-                    key={lead.id}
-                    className="hover:bg-slate-50 transition group"
-                  >
-                    <td className="px-6 py-4 text-sm text-slate-500">
-                      {new Date(lead.created_at).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "short",
-                      })}
-                      <br />
-                      <span className="text-xs text-slate-400">
-                        {new Date(lead.created_at).toLocaleTimeString("id-ID", {
-                          hour: "2-digit",
-                          minute: "2-digit",
+                {filteredLeads.map((lead) => {
+                  const phone = getPhone(lead);
+                  return (
+                    <tr
+                      key={lead.id}
+                      className="hover:bg-slate-50 transition group"
+                    >
+                      <td className="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">
+                        {new Date(lead.created_at).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
                         })}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-slate-900">
-                          {lead.nama}
+                        <br />
+                        <span className="text-xs text-slate-400">
+                          {new Date(lead.created_at).toLocaleTimeString(
+                            "id-ID",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
                         </span>
-                        <span className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3" /> {lead.domisili}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={lead.status} />
-                    </td>
-                    <td className="px-6 py-4 max-w-xs">
-                      {lead.admin_notes ? (
-                        <span
-                          className="text-xs text-slate-600 block truncate"
-                          title={lead.admin_notes}
-                        >
-                          {lead.admin_notes}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-slate-300 italic">-</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <a
-                          href={`https://wa.me/${lead.whatsapp
-                            .replace(/^0/, "62")
-                            .replace(/\+/g, "")}`}
-                          target="_blank"
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-full transition"
-                          title="Chat WhatsApp"
-                        >
-                          <Phone className="w-4 h-4" />
-                        </a>
-                        <button
-                          onClick={() => openEditModal(lead)}
-                          className="p-2 text-amber-600 hover:bg-amber-50 rounded-full transition"
-                          title="Edit Status"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-900">
+                            {lead.nama}
+                          </span>
+                          <span className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                            <Phone className="w-3 h-3" /> {phone || "-"}
+                          </span>
+                          <span className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                            <MapPin className="w-3 h-3" /> {lead.domisili}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        {lead.jadwal_cek_lokasi ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 text-xs font-medium border border-amber-100">
+                            <Calendar size={12} />
+                            {new Date(
+                              lead.jadwal_cek_lokasi
+                            ).toLocaleDateString("id-ID")}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 text-xs">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge status={lead.status} />
+                      </td>
+                      <td className="px-6 py-4 max-w-xs">
+                        {lead.admin_notes ? (
+                          <span
+                            className="text-xs text-slate-600 block truncate"
+                            title={lead.admin_notes}
+                          >
+                            {lead.admin_notes}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-300 italic">
+                            -
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
+                        <div className="flex justify-end gap-2">
+                          <a
+                            href={`https://wa.me/${(phone || "")
+                              .replace(/^0/, "62")
+                              .replace(/\+/g, "")}`}
+                            target="_blank"
+                            className="p-2 text-green-600 hover:bg-green-50 rounded-full transition border border-transparent hover:border-green-200"
+                            title="Chat WhatsApp"
+                          >
+                            <Phone className="w-4 h-4" />
+                          </a>
+                          <button
+                            onClick={() => openEditModal(lead)}
+                            className="p-2 text-amber-600 hover:bg-amber-50 rounded-full transition border border-transparent hover:border-amber-200"
+                            title="Edit Status"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </>
       )}
 
+      {/* Modal Edit Status */}
       {isModalOpen && selectedLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
@@ -466,30 +551,50 @@ export default function DashboardPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
+
             <div className="p-6 overflow-y-auto space-y-6">
-              <div className="bg-amber-50 p-4 rounded-xl border border-amber-100">
-                <p className="text-xs text-amber-600 uppercase font-bold tracking-wider mb-1">
-                  Data User
+              {/* User Detail Card in Modal */}
+              <div className="bg-gradient-to-br from-amber-50 to-white p-4 rounded-xl border border-amber-100 shadow-sm">
+                <p className="text-xs text-amber-600 uppercase font-bold tracking-wider mb-2 flex items-center gap-1">
+                  <Users size={12} /> Data User
                 </p>
                 <p className="text-lg font-bold text-slate-900">
                   {selectedLead.nama}
                 </p>
-                <div className="flex gap-4 mt-2 text-sm text-slate-600">
-                  <span className="flex items-center gap-1">
-                    <Phone className="w-3 h-3" /> {selectedLead.whatsapp}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" /> {selectedLead.domisili}
-                  </span>
+
+                <div className="grid grid-cols-2 gap-3 mt-3 text-sm text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5 text-slate-400" />{" "}
+                    {getPhone(selectedLead) || "-"}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400" />{" "}
+                    {selectedLead.domisili}
+                  </div>
                 </div>
+
+                {selectedLead.jadwal_cek_lokasi && (
+                  <div className="mt-3 bg-white p-2 rounded-lg border border-amber-100 flex items-center gap-2 text-sm text-amber-700">
+                    <Calendar size={14} />
+                    Rencana cek lokasi:{" "}
+                    <span className="font-semibold">
+                      {new Date(
+                        selectedLead.jadwal_cek_lokasi
+                      ).toLocaleDateString("id-ID")}
+                    </span>
+                  </div>
+                )}
+
                 <div className="mt-3 pt-3 border-t border-amber-200/50">
-                  {/* 👇👇 PERBAIKAN DISINI: Pakai &quot; bukan " */}
-                  <p className="text-xs text-amber-800 italic">
+                  <p className="text-xs text-amber-800 italic flex gap-2">
+                    <MessageSquare size={12} className="shrink-0 mt-0.5" />
                     &quot;{selectedLead.keterangan || "Tidak ada pesan khusus"}
                     &quot;
                   </p>
                 </div>
               </div>
+
+              {/* Status Selector */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-3">
                   Pilih Status Baru
@@ -516,9 +621,11 @@ export default function DashboardPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Admin Notes */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Catatan Internal
+                  Catatan Internal (Admin)
                 </label>
                 <textarea
                   rows={3}
@@ -527,21 +634,23 @@ export default function DashboardPage() {
                     setEditForm({ ...editForm, admin_notes: e.target.value })
                   }
                   placeholder="Tulis progress follow-up, jadwal meeting, dll..."
-                  className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm"
+                  className="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm placeholder:text-slate-400"
                 />
               </div>
             </div>
+
+            {/* Modal Actions */}
             <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200 rounded-lg"
+                className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition"
               >
                 Batal
               </button>
               <button
                 onClick={handleSaveChanges}
                 disabled={saving}
-                className="px-6 py-2 text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 rounded-lg shadow-md flex items-center gap-2 disabled:opacity-70"
+                className="px-6 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-md flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed transition"
               >
                 {saving ? (
                   "Menyimpan..."

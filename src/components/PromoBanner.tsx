@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Gift, X } from 'lucide-react';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Gift, X } from "lucide-react";
 
 export const PromoBanner = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -14,7 +14,7 @@ export const PromoBanner = () => {
       {isVisible && (
         <motion.div
           initial={{ height: 0, opacity: 0, y: -20 }}
-          animate={{ height: 'auto', opacity: 1, y: 0 }}
+          animate={{ height: "auto", opacity: 1, y: 0 }}
           exit={{ height: 0, opacity: 0, y: -20 }}
           transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
           className="relative overflow-hidden"
@@ -27,16 +27,21 @@ export const PromoBanner = () => {
               {/* Icon with subtle bounce */}
               <motion.div
                 animate={{ y: [0, -2, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
               >
                 <Gift className="h-5 w-5 mr-2 text-amber-700 drop-shadow-sm hidden sm:block" />
               </motion.div>
 
               <p className="text-sm sm:text-base font-semibold text-center leading-relaxed">
-                <span className="font-bold">Promo Spesial!</span> 🎉 <br />
+                <span className="font-bold">Promo Spesial Akhir Tahun!</span> 🎉{" "}
+                <br />
                 Dari{" "}
                 <span className="line-through text-red-700 font-semibold">
-                  Rp400 Juta
+                  Rp385 Juta
                 </span>{" "}
                 jadi{" "}
                 <motion.span
@@ -51,7 +56,7 @@ export const PromoBanner = () => {
                   Rp375 Juta
                 </motion.span>{" "}
                 ✨ <br />
-                potongan harga <span className="font-bold">Rp25 Juta</span> hanya bulan ini.
+                potongan harga <span className="font-bold">Rp15 Juta</span>{" "}
               </p>
 
               {/* Close button */}
