@@ -44,19 +44,18 @@ export const LeadForm: React.FC = () => {
   const [hasOpened, setHasOpened] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30 * 60);
 
-  // REF untuk input tanggal agar bisa dipicu manual
+  // REF untuk input tanggal agar bisa dipicu manual (UX Friendly)
   const dateInputRef = useRef<HTMLInputElement>(null);
 
+  // Timer Logic (Jalan terus saat mount, konsisten dengan section pembayaran)
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isOpen && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    }
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
     return () => clearInterval(interval);
-  }, [isOpen, timeLeft]);
+  }, []);
 
+  // Auto Open Logic (Hanya sekali per sesi, delay 10 detik)
   useEffect(() => {
     const timer = setTimeout(() => {
       const alreadyClosed = sessionStorage.getItem("lead_popup_closed");
@@ -96,7 +95,7 @@ export const LeadForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // 1. Logic Database (Gabung jadwal ke keterangan karena kolom jadwal tidak ada)
+      // Logic: Gabungkan jadwal ke keterangan agar terbaca di DB/Admin
       let finalKeterangan = form.keterangan.trim();
       if (form.jadwal) {
         const tgl = new Date(form.jadwal).toLocaleDateString("id-ID", {
@@ -108,7 +107,7 @@ export const LeadForm: React.FC = () => {
         finalKeterangan = `[Rencana Cek Lokasi: ${tgl}] \n${finalKeterangan}`;
       }
 
-      // Insert Supabase
+      // Insert ke Supabase
       const { error } = await supabase.from("leads").insert({
         nama: form.nama.trim(),
         domisili: form.domisili.trim(),
@@ -120,17 +119,17 @@ export const LeadForm: React.FC = () => {
 
       if (error) throw new Error(error.message);
 
-      // 2. Kirim Notifikasi Telegram (Kirim form asli agar API bisa format tanggalnya)
+      // Kirim Notifikasi ke API Telegram
       fetch("/api/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          jadwal: form.jadwal, // Pastikan jadwal terkirim terpisah ke API
+          jadwal: form.jadwal,
         }),
       }).catch((err) => console.error("Gagal notif telegram:", err));
 
-      // 3. Pixel Tracking
+      // Tracking Pixel (Opsional)
       if (typeof window !== "undefined" && (window as any).fbq) {
         (window as any).fbq("track", "Lead", {
           content_name: "Promo Villa 375jt",
@@ -140,6 +139,8 @@ export const LeadForm: React.FC = () => {
       }
 
       toast.success("Diskon berhasil dikunci! Tim kami akan menghubungi Anda.");
+
+      // Reset Form & Tutup
       setForm({
         nama: "",
         domisili: "",
@@ -160,7 +161,7 @@ export const LeadForm: React.FC = () => {
 
   return (
     <>
-      {/* Floating Button */}
+      {/* === FLOATING TRIGGER BUTTON (Pojok Kiri Bawah) === */}
       <motion.button
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -179,15 +180,17 @@ export const LeadForm: React.FC = () => {
             Klaim Diskon 15 Juta
           </p>
         </div>
+        {/* Mobile Text Only */}
         <span className="sm:hidden font-bold text-sm text-slate-900">
           Klaim Diskon
         </span>
       </motion.button>
 
-      {/* Modal Popup */}
+      {/* === MODAL POPUP === */}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4">
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -196,6 +199,7 @@ export const LeadForm: React.FC = () => {
               className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
             />
 
+            {/* Content Container */}
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -203,15 +207,18 @@ export const LeadForm: React.FC = () => {
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
             >
-              {/* Header */}
+              {/* Header Visual */}
               <div className="bg-slate-900 relative text-white overflow-hidden shrink-0">
                 <div className="absolute top-0 right-0 p-4 opacity-10 text-amber-500">
                   <Sparkles size={80} />
                 </div>
+
+                {/* Timer Bar */}
                 <div className="bg-amber-500 text-slate-900 text-center py-2 px-4 font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 shadow-sm relative z-10">
                   <Clock size={14} className="animate-pulse" />
                   <span>Promo Berakhir: {formatTime(timeLeft)}</span>
                 </div>
+
                 <div className="px-6 py-5 relative z-10">
                   <div className="flex justify-between items-start">
                     <div>
@@ -223,7 +230,7 @@ export const LeadForm: React.FC = () => {
                         <span className="text-amber-400 font-semibold">
                           DISKON HARGA
                         </span>
-                        . Isi form sekarang untuk mengamankan diskon harga!.
+                        . Isi formulir sekarang.
                       </p>
                     </div>
                     <button
@@ -233,6 +240,8 @@ export const LeadForm: React.FC = () => {
                       <X size={18} />
                     </button>
                   </div>
+
+                  {/* Price Comparison */}
                   <div className="mt-4 bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center relative backdrop-blur-md">
                     <div className="text-left opacity-70">
                       <p className="text-[10px] uppercase text-slate-300 font-semibold line-through decoration-red-500/80">
@@ -260,6 +269,7 @@ export const LeadForm: React.FC = () => {
               {/* Form Body */}
               <div className="px-6 py-6 bg-slate-50 overflow-y-auto flex-1">
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Nama */}
                   <div className="relative group">
                     <User className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
                     <input
@@ -273,6 +283,7 @@ export const LeadForm: React.FC = () => {
                     />
                   </div>
 
+                  {/* Kontak Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="relative group">
                       <Phone className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
@@ -299,7 +310,7 @@ export const LeadForm: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* FIX: Input Tanggal dengan onClick showPicker() */}
+                  {/* Date Picker (Optimized Click) */}
                   <div className="relative group">
                     <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors z-10 pointer-events-none" />
                     <input
@@ -309,11 +320,11 @@ export const LeadForm: React.FC = () => {
                       min={today}
                       value={form.jadwal}
                       onChange={handleChange}
-                      onClick={() => dateInputRef.current?.showPicker()} // TRIGGER PICKER SAAT DIKLIK
+                      onClick={() => dateInputRef.current?.showPicker()}
                       className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm cursor-pointer relative"
-                      style={{ colorScheme: "light" }} // Memastikan icon bawaan browser terlihat bagus
+                      style={{ colorScheme: "light" }}
                     />
-                    {/* Placeholder buatan jika kosong (karena input date defaultnya dd/mm/yyyy) */}
+                    {/* Placeholder Custom */}
                     {!form.jadwal && (
                       <span
                         onClick={() => dateInputRef.current?.showPicker()}
@@ -324,6 +335,7 @@ export const LeadForm: React.FC = () => {
                     )}
                   </div>
 
+                  {/* Pesan */}
                   <div className="relative group">
                     <MessageSquare className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
                     <textarea
@@ -336,6 +348,7 @@ export const LeadForm: React.FC = () => {
                     />
                   </div>
 
+                  {/* Submit Button */}
                   <div className="pt-2">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
