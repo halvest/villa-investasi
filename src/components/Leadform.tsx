@@ -133,8 +133,6 @@ export const LeadForm: React.FC = () => {
       if (typeof window !== "undefined" && (window as any).fbq) {
         (window as any).fbq("track", "Lead", {
           content_name: "Promo Villa 375jt",
-          value: 15000000,
-          currency: "IDR",
         });
       }
 
