@@ -56,7 +56,7 @@ export const PromoBanner = () => {
                   Rp375 Juta
                 </motion.span>{" "}
                 ✨ <br />
-                potongan harga <span className="font-bold">Rp15 Juta</span>{" "}
+                potongan harga <span className="font-bold">Rp10 Juta</span>{" "}
               </p>
 
               {/* Close button */}

@@ -175,7 +175,7 @@ export const LeadForm: React.FC = () => {
             Promo Terbatas
           </p>
           <p className="text-sm font-bold text-slate-900 leading-none mt-0.5">
-            Klaim Diskon 15 Juta
+            Klaim Diskon 10 Juta
           </p>
         </div>
         {/* Mobile Text Only */}
