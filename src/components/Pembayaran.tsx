@@ -1,36 +1,26 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { formatRupiah } from "../lib/formatRupiah";
 import { motion } from "framer-motion";
 import {
   Wallet,
   CheckCircle,
-  Clock,
   Sparkles,
-  ArrowDown,
   User,
   Phone,
   MapPin,
   Calendar,
-  MessageSquare,
   ChevronRight,
   ShieldCheck,
+  MessageCircleQuestion, // Icon baru
+  Coffee, // Icon baru
+  Info, // Icon baru
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabaseClient";
 
-// --- Helper Timer ---
-const formatTime = (seconds: number) => {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s
-    .toString()
-    .padStart(2, "0")}`;
-};
-
-// --- KOMPONEN FORMULIR PROMO (Disamakan dengan LeadForm) ---
+// --- KOMPONEN FORMULIR KONSULTASI (Updated: Match LeadForm Style) ---
 const InlinePromoForm = () => {
   const [form, setForm] = useState({
     nama: "",
@@ -41,17 +31,10 @@ const InlinePromoForm = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(30 * 60);
   const dateInputRef = useRef<HTMLInputElement>(null);
   const today = new Date().toISOString().split("T")[0];
 
-  // Timer Logic
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // Note: Timer Logic dihapus untuk pendekatan "Konsultasi"
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -84,7 +67,7 @@ const InlinePromoForm = () => {
           month: "long",
           day: "numeric",
         });
-        finalKeterangan = `[Rencana Cek Lokasi: ${tgl}] \n${finalKeterangan}`;
+        finalKeterangan = `[Request Jadwal: ${tgl}] \n${finalKeterangan}`;
       }
 
       // Insert Supabase
@@ -93,7 +76,7 @@ const InlinePromoForm = () => {
         domisili: form.domisili.trim(),
         whatsapp: form.whatsapp.trim(),
         keterangan: finalKeterangan,
-        source: "Promo Pembayaran (Inline)",
+        source: "Payment Page (Inline Form)",
         status: "Baru",
       });
 
@@ -112,13 +95,13 @@ const InlinePromoForm = () => {
       // Pixel Tracking
       if (typeof window !== "undefined" && (window as any).fbq) {
         (window as any).fbq("track", "Lead", {
-          content_name: "Promo Villa 375jt",
-          value: 15000000,
-          currency: "IDR",
+          content_name: "Consultation Request (Inline)",
         });
       }
 
-      toast.success("Diskon berhasil dikunci! Tim kami akan menghubungi Anda.");
+      toast.success(
+        "Permintaan terkirim. Tim kami akan segera menghubungi Anda."
+      );
       setForm({
         nama: "",
         domisili: "",
@@ -136,50 +119,49 @@ const InlinePromoForm = () => {
 
   return (
     <div className="mt-8 bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200 relative">
-      {/* Header Visual (Disamakan dengan LeadForm Popup) */}
+      {/* Header Visual (Consultation Style - Dark Theme) */}
       <div className="bg-slate-900 relative text-white overflow-hidden p-6">
-        <div className="absolute top-0 right-0 p-4 opacity-10 text-amber-500">
-          <Sparkles size={100} />
-        </div>
-
-        {/* Timer Badge */}
-        <div className="flex justify-center mb-6">
-          <div className="bg-amber-500 text-slate-900 px-4 py-1.5 rounded-full text-xs font-bold tracking-wide flex items-center gap-2 shadow-lg animate-pulse">
-            <Clock size={14} />
-            <span>Promo Berakhir: {formatTime(timeLeft)}</span>
-          </div>
+        {/* Background Pattern Subtle */}
+        <div className="absolute top-0 right-0 p-6 opacity-5">
+          <Coffee size={120} />
         </div>
 
         <div className="relative z-10">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-2">
-            Selamat! <span className="text-2xl">🎉</span>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="bg-amber-500/20 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-500/30">
+              PRIORITAS
+            </span>
+          </div>
+
+          <h3 className="text-xl font-bold text-white leading-tight mb-2">
+            Konsultasi Investasi
           </h3>
-          <p className="text-sm text-slate-300 mb-6">
-            Anda terpilih mendapatkan{" "}
-            <span className="text-amber-400 font-semibold">DISKON HARGA</span>.
-            Isi form di bawah untuk mendapatkan harga spesial ini.
+          <p className="text-sm text-slate-300 mb-6 leading-relaxed">
+            Diskusikan potensi ROI, detail unit, dan skema pembayaran dengan
+            konsultan kami.
           </p>
 
-          {/* Price Comparison Card */}
+          {/* Price Info Block (Clean & Professional) */}
           <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center relative backdrop-blur-md">
-            <div className="text-left opacity-70">
-              <p className="text-[10px] uppercase text-slate-300 font-semibold line-through decoration-red-500/80">
-                Harga Normal
-              </p>
-              <p className="text-sm font-medium text-slate-300 line-through decoration-red-500/80">
-                Rp 385 Juta
+            <div className="text-left">
+              <div className="flex items-center gap-1.5 text-slate-400 mb-1">
+                <Info size={10} />
+                <p className="text-[10px] uppercase font-semibold tracking-wider">
+                  Harga Publik
+                </p>
+              </div>
+              <p className="text-sm font-medium text-slate-400 line-through decoration-slate-500">
+                Rp 395 Juta
               </p>
             </div>
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-amber-500 text-slate-900 rounded-full p-1 border-2 border-slate-900">
-              <ArrowDown size={14} className="animate-bounce" />
-            </div>
+
+            <div className="h-8 w-[1px] bg-white/10 mx-2"></div>
+
             <div className="text-right">
-              <p className="text-[10px] uppercase text-amber-400 font-bold animate-pulse">
-                Harga Spesial
+              <p className="text-[10px] uppercase text-amber-500 font-bold mb-1 tracking-wider">
+                Penawaran Spesial
               </p>
-              <p className="text-2xl font-black text-white tracking-tight">
-                Rp 375 Jt
-              </p>
+              <p className="text-xl font-bold text-white">Rp 390 Juta</p>
             </div>
           </div>
         </div>
@@ -189,46 +171,46 @@ const InlinePromoForm = () => {
       <div className="px-6 py-8 bg-slate-50">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative group">
-            <User className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+            <User className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-slate-800 transition-colors" />
             <input
               type="text"
               name="nama"
               value={form.nama}
               onChange={handleChange}
               placeholder="Nama Lengkap"
-              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-800 focus:border-slate-800 outline-none transition text-sm text-slate-800 shadow-sm placeholder:text-slate-400"
               required
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="relative group">
-              <Phone className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+              <Phone className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-slate-800 transition-colors" />
               <input
                 type="tel"
                 name="whatsapp"
                 value={form.whatsapp}
                 onChange={handleChange}
-                placeholder="WhatsApp (08xx)"
-                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm"
+                placeholder="WhatsApp (Aktif)"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-800 focus:border-slate-800 outline-none transition text-sm text-slate-800 shadow-sm placeholder:text-slate-400"
                 required
               />
             </div>
             <div className="relative group">
-              <MapPin className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+              <MapPin className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-slate-800 transition-colors" />
               <input
                 type="text"
                 name="domisili"
                 value={form.domisili}
                 onChange={handleChange}
-                placeholder="Domisili"
-                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm"
+                placeholder="Kota Domisili"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-800 focus:border-slate-800 outline-none transition text-sm text-slate-800 shadow-sm placeholder:text-slate-400"
               />
             </div>
           </div>
 
           <div className="relative group">
-            <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors z-10 pointer-events-none" />
+            <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-slate-800 transition-colors z-10 pointer-events-none" />
             <input
               ref={dateInputRef}
               type="date"
@@ -237,7 +219,7 @@ const InlinePromoForm = () => {
               value={form.jadwal}
               onChange={handleChange}
               onClick={() => dateInputRef.current?.showPicker()}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm cursor-pointer relative"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-800 focus:border-slate-800 outline-none transition text-sm text-slate-800 shadow-sm cursor-pointer relative"
               style={{ colorScheme: "light" }}
             />
             {!form.jadwal && (
@@ -245,43 +227,43 @@ const InlinePromoForm = () => {
                 onClick={() => dateInputRef.current?.showPicker()}
                 className="absolute left-10 top-3.5 text-sm text-slate-400 pointer-events-none bg-white pr-2"
               >
-                Rencana Cek Lokasi
+                Jadwalkan Cek Lokasi
               </span>
             )}
           </div>
 
           <div className="relative group">
-            <MessageSquare className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+            <MessageCircleQuestion className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-slate-800 transition-colors" />
             <textarea
               name="keterangan"
               rows={2}
               value={form.keterangan}
               onChange={handleChange}
-              placeholder="Ada pertanyaan khusus?"
-              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none transition text-sm text-slate-800 shadow-sm resize-none"
+              placeholder="Apa yang ingin Anda tanyakan?"
+              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-1 focus:ring-slate-800 focus:border-slate-800 outline-none transition text-sm text-slate-800 shadow-sm resize-none placeholder:text-slate-400"
             />
           </div>
 
           <div className="pt-2">
             <motion.button
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white py-4 rounded-xl font-bold text-base shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 rounded-xl font-bold text-base shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
-                "Memproses..."
+                "Sedang Mengirim..."
               ) : (
                 <>
-                  Ambil Diskon Sekarang <ChevronRight size={18} />
+                  Hubungi Konsultan Kami <ChevronRight size={18} />
                 </>
               )}
             </motion.button>
-            <div className="flex justify-center mt-3">
-              <p className="text-[10px] text-slate-400 flex items-center gap-1.5 text-center">
-                <ShieldCheck size={12} className="text-green-500" />
-                Privasi aman. Detail promo dikirim via WhatsApp.
+            <div className="flex justify-center mt-4">
+              <p className="text-[10px] text-slate-500 flex items-center gap-1.5 text-center">
+                <ShieldCheck size={12} className="text-slate-400" />
+                Privasi Anda terjaga. Kami tidak melakukan spam.
               </p>
             </div>
           </div>
@@ -294,7 +276,7 @@ const InlinePromoForm = () => {
 // --- DATA PEMBAYARAN ---
 const payments = [
   { title: "Booking Fee", amount: 5_000_000 },
-  { title: "DP 50%", amount: 187_500_000 },
+  { title: "DP 50%", amount: 197_500_000 },
   { title: "Termin 1", amount: 96_250_000 },
   { title: "Termin 2", amount: 96_250_000 },
 ];
@@ -371,7 +353,7 @@ export default function PaymentSchedulePage() {
               </p>
             </div>
 
-            {/* --- FORM PROMO (DITARUH DISINI) --- */}
+            {/* --- FORM KONSULTASI (UPDATED) --- */}
             <InlinePromoForm />
           </motion.div>
 

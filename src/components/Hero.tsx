@@ -109,7 +109,7 @@ export const Hero = () => {
               className="mt-5 text-sm text-gray-300 sm:text-base md:text-lg"
             >
               Investasi cerdas di jantung pariwisata Yogyakarta. Mulai dari{" "}
-              <strong className="font-semibold text-white">Rp385 Juta</strong>,
+              <strong className="font-semibold text-white">Rp395 Juta</strong>,
               dapatkan jaminan BEP 5 tahun dengan legalitas notaris resmi.
             </motion.p>
 
