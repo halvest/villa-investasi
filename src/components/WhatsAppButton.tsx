@@ -36,20 +36,39 @@ export default function WhatsAppButton() {
   };
 
   const handleClick = () => {
-    // --- TRACKING CODE META PIXEL (CONTACT) ---
+    // --- 1. TRACKING GTM (GOOGLE ADS & GA4) ---
+    // Mengirim event ke DataLayer agar bisa ditangkap GTM
+    if (typeof window !== "undefined" && (window as any).dataLayer) {
+      (window as any).dataLayer.push({
+        event: "whatsapp_click", // Nama event untuk Trigger GTM
+        source: "floating_button",
+        conversion_value: 0,
+      });
+    }
+
+    // --- 2. TRACKING META PIXEL (BACKUP) ---
+    // Tetap kirim langsung ke Pixel sebagai cadangan
     if (typeof window !== "undefined" && (window as any).fbq) {
       (window as any).fbq("track", "Contact", {
         content_name: "Floating WhatsApp Button",
         status: "clicked",
       });
     }
-    // ------------------------------------------
 
-    // Format Pesan Otomatis
-    const message =
+    // --- 3. LOGIKA PESAN OTOMATIS + REF URL ---
+    // Mengambil URL halaman saat ini agar CS tahu user datang dari iklan/halaman mana
+    let currentUrl = "";
+    if (typeof window !== "undefined") {
+      currentUrl = window.location.href;
+    }
+
+    const baseMessage =
       "Halo Admin, saya tertarik info detail tentang Villa Lodji Svarga 2. Bisa minta pricelist?";
+    // Menambahkan referensi URL di bawah pesan (sangat berguna untuk tracking manual CS)
+    const finalMessage = `${baseMessage}\n\n(Ref: ${currentUrl})`;
+
     const url = `https://wa.me/6289509888404?text=${encodeURIComponent(
-      message
+      finalMessage
     )}`;
 
     window.open(url, "_blank");

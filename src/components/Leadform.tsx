@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -16,10 +16,20 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabaseClient";
+import { useSearchParams } from "next/navigation"; // [NEW] Import SearchParams
 
 const phonePattern = /^(?:\+62|0)[0-9]{9,14}$/;
 
+// Komponen Utama dibungkus Suspense agar aman di Next.js (menghindari error build statis)
 export const LeadForm: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading form...</div>}>
+      <LeadFormContent />
+    </Suspense>
+  );
+};
+
+const LeadFormContent = () => {
   const [form, setForm] = useState({
     nama: "",
     domisili: "",
@@ -32,13 +42,12 @@ export const LeadForm: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
 
-  // REF untuk input tanggal agar bisa dipicu manual
+  // [NEW] Hook untuk ambil parameter URL (UTM)
+  const searchParams = useSearchParams();
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto Open Logic (Hanya sekali per sesi, delay 10 detik agar user baca konten dulu)
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Cek apakah user sudah pernah menutup popup sebelumnya
       const alreadyClosed = sessionStorage.getItem("consultation_popup_closed");
       if (!hasOpened && !alreadyClosed) {
         setIsOpen(true);
@@ -76,6 +85,11 @@ export const LeadForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
+      // [NEW] Ambil Data UTM
+      const utmSource = searchParams.get("utm_source") || "direct";
+      const utmMedium = searchParams.get("utm_medium") || "-";
+      const utmCampaign = searchParams.get("utm_campaign") || "-";
+
       let finalKeterangan = form.keterangan.trim();
       if (form.jadwal) {
         const tgl = new Date(form.jadwal).toLocaleDateString("id-ID", {
@@ -87,28 +101,40 @@ export const LeadForm: React.FC = () => {
         finalKeterangan = `[Request Jadwal: ${tgl}] \n${finalKeterangan}`;
       }
 
-      // Insert ke Supabase
+      // [NEW] Simpan ke Supabase dengan Source yang Jelas
       const { error } = await supabase.from("leads").insert({
         nama: form.nama.trim(),
         domisili: form.domisili.trim(),
         whatsapp: form.whatsapp.trim(),
         keterangan: finalKeterangan,
-        source: "Consultation Popup (390jt)", // Source tag diperjelas
+        source: `Popup (${utmSource} - ${utmMedium})`, // Source diperkaya
         status: "Baru",
       });
 
       if (error) throw new Error(error.message);
 
-      // Kirim Notifikasi (Opsional)
+      // [NEW] Kirim Notifikasi ke API (Telegram + CAPI)
       fetch("/api/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, jadwal: form.jadwal }),
-      }).catch((err) => console.error("Gagal notif telegram:", err));
+        body: JSON.stringify({
+          ...form,
+          jadwal: form.jadwal,
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          user_agent: navigator.userAgent, // Diperlukan untuk tracking akurat
+        }),
+      }).catch((err) => console.error("Gagal notif:", err));
 
-      if (typeof window !== "undefined" && (window as any).fbq) {
-        (window as any).fbq("track", "Lead", {
-          content_name: "Consultation Request",
+      // [NEW] GTM DataLayer Push (PENTING UNTUK ADS)
+      if (typeof window !== "undefined" && (window as any).dataLayer) {
+        (window as any).dataLayer.push({
+          event: "lead_form_submit",
+          form_type: "consultation_popup",
+          inputs: {
+            domisili: form.domisili,
+          },
         });
       }
 
@@ -136,7 +162,7 @@ export const LeadForm: React.FC = () => {
 
   return (
     <>
-      {/* === FLOATING TRIGGER BUTTON (Consultation Style) === */}
+      {/* Tombol Floating */}
       <motion.button
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -144,7 +170,6 @@ export const LeadForm: React.FC = () => {
         onClick={handleOpen}
         className="fixed bottom-6 left-6 z-40 bg-white text-slate-800 pl-2 pr-5 py-2 rounded-full shadow-2xl hover:scale-105 transition group flex items-center gap-3 border border-slate-200"
       >
-        {/* Icon Chat/Pertanyaan */}
         <div className="bg-slate-800 text-white p-2.5 rounded-full shadow-md">
           <MessageCircleQuestion size={20} />
         </div>
@@ -156,17 +181,15 @@ export const LeadForm: React.FC = () => {
             Konsultasi Gratis
           </p>
         </div>
-        {/* Mobile Text Only */}
         <span className="sm:hidden font-bold text-sm text-slate-900">
           Tanya Kami
         </span>
       </motion.button>
 
-      {/* === MODAL POPUP === */}
+      {/* Modal Popup */}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -175,7 +198,6 @@ export const LeadForm: React.FC = () => {
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
             />
 
-            {/* Content Container */}
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -183,9 +205,8 @@ export const LeadForm: React.FC = () => {
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
             >
-              {/* Header Visual - Professional Dark Blue/Slate */}
+              {/* Header Visual */}
               <div className="bg-slate-900 relative text-white overflow-hidden shrink-0">
-                {/* Background Pattern Subtle */}
                 <div className="absolute top-0 right-0 p-6 opacity-5">
                   <Coffee size={120} />
                 </div>
@@ -214,7 +235,6 @@ export const LeadForm: React.FC = () => {
                     </button>
                   </div>
 
-                  {/* Price Info Block (Informational Only) */}
                   <div className="mt-5 bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center relative">
                     <div className="text-left">
                       <div className="flex items-center gap-1.5 text-slate-400 mb-1">
@@ -245,7 +265,6 @@ export const LeadForm: React.FC = () => {
               {/* Form Body */}
               <div className="px-6 py-6 bg-slate-50 overflow-y-auto flex-1">
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Nama */}
                   <div className="relative group">
                     <User className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-slate-800 transition-colors" />
                     <input
@@ -259,7 +278,6 @@ export const LeadForm: React.FC = () => {
                     />
                   </div>
 
-                  {/* Kontak Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="relative group">
                       <Phone className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-slate-800 transition-colors" />
@@ -286,7 +304,6 @@ export const LeadForm: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Date Picker */}
                   <div className="relative group">
                     <Calendar className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-slate-800 transition-colors z-10 pointer-events-none" />
                     <input
@@ -310,7 +327,6 @@ export const LeadForm: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Pesan */}
                   <div className="relative group">
                     <MessageCircleQuestion className="absolute left-3 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-slate-800 transition-colors" />
                     <textarea
@@ -323,7 +339,6 @@ export const LeadForm: React.FC = () => {
                     />
                   </div>
 
-                  {/* Submit Button */}
                   <div className="pt-2">
                     <motion.button
                       whileHover={{ scale: 1.01 }}

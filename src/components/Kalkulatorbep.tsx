@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import { NumericFormat } from 'react-number-format';
-import Slider from 'rc-slider';
-import 'rc-slider/assets/index.css';
-import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Calendar, ChevronDown } from 'lucide-react';
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { NumericFormat } from "react-number-format";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
+import { motion, AnimatePresence } from "framer-motion";
+import { TrendingUp, Calendar, ChevronDown } from "lucide-react";
 
 // --- Helper Function ---
 const formatRupiah = (value: number) =>
-  new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value);
@@ -26,8 +26,47 @@ export function BEPCalculator() {
   const [hariTerisi, setHariTerisi] = useState(20);
   const [showDetails, setShowDetails] = useState(false);
 
+  // Ref untuk mendeteksi kapan user melihat bagian ini
+  const sectionRef = useRef<HTMLElement>(null);
+  const hasTracked = useRef(false);
+
+  // --- TRACKING: View ROI Section (High Intent) ---
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        // Jika 50% kalkulator terlihat di layar & belum pernah ditrack sesi ini
+        if (entry.isIntersecting && !hasTracked.current) {
+          // Kirim sinyal ke GTM
+          if (typeof window !== "undefined" && (window as any).dataLayer) {
+            (window as any).dataLayer.push({
+              event: "view_roi_section", // Event khusus untuk Retargeting
+              section: "calculator_bep",
+              interest_level: "high",
+            });
+          }
+
+          hasTracked.current = true; // Kunci agar tidak spam event
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   // --- Kalkulasi Inti ---
-  const { pendapatanKotor, biayaOperasional, profitBersih, investorBulanan, bepTahun } = useMemo(() => {
+  const {
+    pendapatanKotor,
+    biayaOperasional,
+    profitBersih,
+    investorBulanan,
+    bepTahun,
+  } = useMemo(() => {
     const gross = hariTerisi * hargaSewa;
     const operational = gross * BIAYA_OPERASIONAL_PERSEN;
     const net = gross - operational;
@@ -39,12 +78,13 @@ export function BEPCalculator() {
       biayaOperasional: operational,
       profitBersih: net,
       investorBulanan: investor,
-      bepTahun: bep > 0 ? bep.toFixed(1) : 'N/A',
+      bepTahun: bep > 0 ? bep.toFixed(1) : "N/A",
     };
   }, [hargaSewa, hariTerisi]);
 
   return (
     <section
+      ref={sectionRef} // Pasang sensor di sini
       id="kalkulator"
       className="py-20 bg-slate-900 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(250,204,21,0.08),rgba(255,255,255,0))]"
       aria-labelledby="kalkulator-heading"
@@ -74,7 +114,7 @@ export function BEPCalculator() {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           className="max-w-3xl mx-auto bg-slate-800/40 backdrop-blur-lg p-6 sm:p-10 rounded-3xl shadow-2xl border border-white/20"
         >
           {/* Hasil Utama */}
@@ -92,7 +132,8 @@ export function BEPCalculator() {
                 <Calendar className="w-5 h-5" /> Estimasi Balik Modal
               </p>
               <p className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mt-2 drop-shadow-lg">
-                {bepTahun} <span className="text-lg sm:text-xl text-slate-300">Tahun</span>
+                {bepTahun}{" "}
+                <span className="text-lg sm:text-xl text-slate-300">Tahun</span>
               </p>
             </div>
           </div>
@@ -105,7 +146,9 @@ export function BEPCalculator() {
               </label>
               <NumericFormat
                 value={hargaSewa}
-                onValueChange={({ floatValue }) => setHargaSewa(floatValue ?? 0)}
+                onValueChange={({ floatValue }) =>
+                  setHargaSewa(floatValue ?? 0)
+                }
                 thousandSeparator="."
                 decimalSeparator=","
                 prefix="Rp "
@@ -123,16 +166,19 @@ export function BEPCalculator() {
                   max={30}
                   value={hariTerisi}
                   onChange={(v) => setHariTerisi(Number(v))}
-                  trackStyle={{ backgroundColor: '#facc15', height: 8 }}
+                  trackStyle={{ backgroundColor: "#facc15", height: 8 }}
                   handleStyle={{
-                    borderColor: '#facc15',
+                    borderColor: "#facc15",
                     height: 24,
                     width: 24,
                     marginTop: -8,
-                    backgroundColor: '#facc15',
-                    boxShadow: '0 0 0 4px rgba(30, 41, 59, 0.5)',
+                    backgroundColor: "#facc15",
+                    boxShadow: "0 0 0 4px rgba(30, 41, 59, 0.5)",
                   }}
-                  railStyle={{ backgroundColor: 'rgba(255,255,255,0.1)', height: 8 }}
+                  railStyle={{
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    height: 8,
+                  }}
                 />
                 <span className="text-xl sm:text-2xl font-bold text-white px-4 py-2 rounded-lg border border-white/20 bg-white/5">
                   {hariTerisi} hari
@@ -156,7 +202,7 @@ export function BEPCalculator() {
               {showDetails && (
                 <motion.div
                   initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                  animate={{ opacity: 1, height: 'auto', marginTop: '20px' }}
+                  animate={{ opacity: 1, height: "auto", marginTop: "20px" }}
                   exit={{ opacity: 0, height: 0, marginTop: 0 }}
                   className="text-white/80 overflow-hidden"
                 >
